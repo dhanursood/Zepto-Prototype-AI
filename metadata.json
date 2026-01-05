@@ -1,0 +1,7 @@
+{
+  "name": "Zepto Plus - AI Commerce",
+  "description": "A next-gen quick-commerce app with deeply integrated AI for meal planning, personal care advice, and product compatibility checks.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
