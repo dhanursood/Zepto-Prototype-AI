@@ -284,7 +284,7 @@ export const MOCK_PRODUCTS: Product[] = [
     specs: { 'Ailment': 'Back Pain, Chronic Pain' }
   },
 
-  // Electronics
+  // Electronics & Accessories
   {
     id: 'p7',
     name: 'iPhone 15 Case - Clear',
@@ -293,16 +293,47 @@ export const MOCK_PRODUCTS: Product[] = [
     category: 'Electronics',
     imageUrl: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400&h=400&fit=crop',
     description: 'Crystal clear magsafe compatible case.',
-    specs: { 'Compatibility': 'iPhone 15' }
+    specs: { 'Compatibility': 'iPhone 15', 'Port Type': 'USB-C' }
+  },
+  {
+    id: 'p7b',
+    name: 'iPhone 14 Case - Silicone',
+    price: 999,
+    unit: '1 pc',
+    category: 'Electronics',
+    imageUrl: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400&h=400&fit=crop',
+    description: 'Soft-touch silicone case with microfiber lining.',
+    specs: { 'Compatibility': 'iPhone 14, iPhone 13', 'Port Type': 'Lightning' }
   },
   {
     id: 'p22',
-    name: 'USB-C Fast Charging Cable',
-    price: 349,
+    name: 'USB-C to USB-C Fast Cable',
+    price: 499,
     unit: '1m',
     category: 'Electronics',
     imageUrl: 'https://images.unsplash.com/photo-1589492477829-5e65395b66cc?w=400&h=400&fit=crop',
-    description: 'Durable braided fast charging cable.'
+    description: 'Durable braided fast charging cable for modern devices.',
+    specs: { 'Port': 'USB-C', 'Compatibility': 'iPhone 15, iPad Pro, Android' }
+  },
+  {
+    id: 'p22b',
+    name: 'Lightning to USB-C Cable',
+    price: 549,
+    unit: '1m',
+    category: 'Electronics',
+    imageUrl: 'https://images.unsplash.com/photo-1589492477829-5e65395b66cc?w=400&h=400&fit=crop',
+    description: 'Official spec charging and data sync cable for older iPhones.',
+    specs: { 'Port': 'Lightning', 'Compatibility': 'iPhone 14, 13, 12, 11, SE' }
+  },
+  {
+    id: 'p22c',
+    name: 'Apple MFi Certified Lightning Cable',
+    price: 899,
+    unit: '2m',
+    category: 'Electronics',
+    imageUrl: 'https://images.unsplash.com/photo-1589492477829-5e65395b66cc?w=400&h=400&fit=crop',
+    description: 'Longer cable for convenience, fully certified by Apple.',
+    specs: { 'Port': 'Lightning', 'Compatibility': 'All Lightning iPhones' }
   },
 
   // Self Care

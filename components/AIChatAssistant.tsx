@@ -32,7 +32,7 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
       if (result) {
         setResponse(result);
       } else {
-        setError("I couldn't find matches. Try something like 'acne care' or 'make paneer butter masala'.");
+        setError("I couldn't find matches. Try something like 'acne care' or 'iPhone 15 cable'.");
       }
     } catch (err) {
       setError("AI is currently unavailable. Please try again later.");
@@ -55,7 +55,7 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
   };
 
   return (
-    <div className="bg-white rounded-t-[2.5rem] zepto-shadow flex flex-col max-h-[92vh] overflow-hidden border-t border-gray-100">
+    <div className="bg-white rounded-t-[2.5rem] zepto-shadow flex flex-col h-full overflow-hidden border-t border-gray-100">
       {/* Header */}
       <div className="flex items-center justify-between p-6 pb-4 border-b border-gray-50 bg-white sticky top-0 z-10">
         <div className="flex items-center gap-3">
@@ -76,7 +76,7 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto p-6 scrollbar-hide space-y-8 bg-gray-50/30">
+      <div className="flex-1 overflow-y-auto p-6 scrollbar-hide space-y-8 bg-gray-50/30 pb-32">
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center text-center">
             <div className="relative">
@@ -131,7 +131,7 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
               onClick={handleAddAll}
               className="w-full bg-zepto-pink hover:bg-zepto-pink-dark text-white font-black py-5 rounded-2xl shadow-xl shadow-zepto-pink/20 active:scale-95 transition-all mb-8 flex items-center justify-center gap-3 uppercase tracking-widest text-sm"
             >
-              Add Everything To Basket <i className="fa-solid fa-cart-plus"></i>
+              Add Everything <i className="fa-solid fa-cart-plus ml-2"></i>
             </button>
           </div>
         ) : (
@@ -140,19 +140,19 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
                 <i className="fa-solid fa-magic-wand-sparkles text-3xl text-zepto-purple opacity-40"></i>
               </div>
               <h3 className="text-gray-900 font-black text-lg mb-2">How can I help you today?</h3>
-              <p className="text-sm font-medium text-gray-400 max-w-[240px]">Ask about recipes, hair types, skin ailments, or vitamins.</p>
+              <p className="text-sm font-medium text-gray-400 max-w-[240px]">Ask about recipes, compatibility, or wellness.</p>
           </div>
         )}
       </div>
 
       {/* Input Section */}
-      <div className="p-6 pt-4 bg-white border-t border-gray-50 pb-10">
+      <div className="p-6 pt-4 bg-white border-t border-gray-100 pb-16 absolute bottom-0 left-0 right-0">
         <div className="relative">
             <textarea
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Write your message..."
-                className="w-full p-5 pr-14 rounded-[1.5rem] bg-gray-100 border-2 border-transparent outline-none focus:bg-white focus:border-zepto-purple transition-all resize-none h-28 text-sm font-semibold placeholder:text-gray-400"
+                className="w-full p-4 pr-14 rounded-[1.5rem] bg-gray-100 border-2 border-transparent outline-none focus:bg-white focus:border-zepto-purple transition-all resize-none h-20 text-sm font-semibold placeholder:text-gray-400"
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -163,17 +163,17 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
             <button 
                 onClick={() => handleSearch(inputValue)}
                 disabled={!inputValue.trim() || loading}
-                className="absolute right-4 bottom-4 w-11 h-11 bg-zepto-purple text-white rounded-2xl flex items-center justify-center disabled:opacity-30 active:scale-90 transition-all shadow-lg shadow-zepto-purple/30"
+                className="absolute right-3 bottom-3 w-10 h-10 bg-zepto-purple text-white rounded-2xl flex items-center justify-center disabled:opacity-30 active:scale-90 transition-all shadow-lg shadow-zepto-purple/30"
             >
-                <i className="fa-solid fa-paper-plane text-sm"></i>
+                <i className="fa-solid fa-paper-plane text-xs"></i>
             </button>
         </div>
-        <div className="mt-4 flex gap-2 overflow-x-auto scrollbar-hide">
-            {['Shampoo for dandruff', 'Rash on skin', 'Best Biotin', 'Acne wash'].map(tag => (
+        <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-hide">
+            {['Cable for iPhone 15', 'Shampoo for dandruff', 'Acne wash'].map(tag => (
                 <button 
                     key={tag}
                     onClick={() => { setInputValue(tag); handleSearch(tag); }}
-                    className="whitespace-nowrap bg-white border border-gray-200 px-4 py-1.5 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-widest hover:border-zepto-purple hover:text-zepto-purple transition-all"
+                    className="whitespace-nowrap bg-white border border-gray-200 px-3 py-1.5 rounded-full text-[9px] font-black text-gray-500 uppercase tracking-widest hover:border-zepto-purple hover:text-zepto-purple transition-all"
                 >
                     {tag}
                 </button>
