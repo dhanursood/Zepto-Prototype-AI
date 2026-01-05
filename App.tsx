@@ -15,6 +15,8 @@ const App: React.FC = () => {
   const [isAiMode, setIsAiMode] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartAdvice, setCartAdvice] = useState<string | null>(null);
+  const [cartSuggestions, setCartSuggestions] = useState<{ product: Product; reason: string }[]>([]);
+  const [isReviewing, setIsReviewing] = useState(false);
   const scrollContainerRef = useRef<HTMLElement>(null);
 
   const cartItems = useMemo(() => Object.values(cart), [cart]);
@@ -123,9 +125,22 @@ const App: React.FC = () => {
 
   const reviewCart = async () => {
     if (cartItems.length === 0) return;
-    setCartAdvice("Analyzing your basket...");
-    const result = await getCartReview(cartItems);
-    setCartAdvice(result.advice);
+    setIsReviewing(true);
+    try {
+      const result = await getCartReview(cartItems);
+      setCartAdvice(result.advice);
+      const mapped = (result.suggestions || [])
+        .map((s: any) => ({
+          product: MOCK_PRODUCTS.find(p => p.id === s.id),
+          reason: s.reason
+        }))
+        .filter((item: any) => item.product !== undefined && !cart[item.product.id]);
+      setCartSuggestions(mapped);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsReviewing(false);
+    }
   };
 
   const handleSeeAll = (cat?: string) => {
@@ -435,7 +450,15 @@ const App: React.FC = () => {
                   )}
                 </div>
                 
-                <div className="h-20"></div>
+                <div className="h-40"></div>
+                <div className="absolute bottom-24 left-0 right-0 px-6 z-40 bg-white/80 backdrop-blur-md py-4 border-t border-gray-100">
+                  <button 
+                    onClick={() => addToCart(selectedProduct)}
+                    className="w-full bg-zepto-pink hover:bg-zepto-pink-dark text-white font-black py-5 rounded-2xl shadow-xl shadow-zepto-pink/20 uppercase tracking-widest active:scale-[0.98] transition-all"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -471,27 +494,60 @@ const App: React.FC = () => {
                     ))}
                   </div>
 
-                  <div className="mt-4 bg-amber-50 border-2 border-dashed border-amber-200 p-5 rounded-2xl relative shadow-sm">
-                    <div className="flex items-center gap-2 mb-2 text-amber-900 font-black text-xs uppercase tracking-widest">
-                      <i className="fa-solid fa-wand-magic-sparkles text-amber-500"></i> AI Smart Check
-                    </div>
-                    {cartAdvice ? (
-                      <div className="animate-in fade-in slide-in-from-left-2">
-                          <p className="text-sm text-amber-900 leading-relaxed font-medium mb-4 italic">"{cartAdvice}"</p>
-                          <button 
-                              onClick={reviewCart}
-                              className="text-[10px] bg-amber-200/50 text-amber-900 px-4 py-1.5 rounded-full font-black uppercase tracking-widest"
-                          >
-                              Analyze Again
-                          </button>
+                  <div className="mt-4 bg-white p-5 rounded-2xl relative shadow-sm border border-gray-100">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2 text-zepto-purple font-black text-xs uppercase tracking-widest">
+                        <i className="fa-solid fa-wand-magic-sparkles text-zepto-pink animate-pulse"></i> AI Smart Recommendations
                       </div>
-                    ) : (
                       <button 
                           onClick={reviewCart}
-                          className="text-sm text-amber-800 font-bold flex items-center gap-2 group"
+                          disabled={isReviewing}
+                          className={`text-[10px] font-black uppercase tracking-widest ${isReviewing ? 'text-gray-300' : 'text-zepto-pink'}`}
                       >
-                          Review for missing items <i className="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                          {isReviewing ? 'Analyzing...' : (cartSuggestions.length > 0 ? 'Refresh' : 'Scan Cart')}
                       </button>
+                    </div>
+
+                    {cartSuggestions.length > 0 ? (
+                      <div className="animate-in fade-in slide-in-from-right-4">
+                        <p className="text-xs text-gray-400 font-bold mb-4">{cartAdvice}</p>
+                        <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-2 px-2">
+                           {cartSuggestions.map(({ product: p, reason }) => (
+                             <div key={p.id} className="min-w-[140px] max-w-[140px] bg-gray-50 rounded-2xl p-3 border border-gray-100 flex flex-col items-center">
+                                <div className="h-20 w-full flex items-center justify-center mb-2">
+                                  <img src={p.imageUrl} className="h-full object-contain mix-blend-multiply" />
+                                </div>
+                                <div className="text-center mb-2">
+                                  <p className="text-[11px] font-black text-gray-800 line-clamp-1">{p.name}</p>
+                                  <p className="text-[9px] font-bold text-zepto-pink uppercase tracking-tighter mt-0.5">{reason}</p>
+                                </div>
+                                <button 
+                                  onClick={() => addToCart(p)}
+                                  className="w-full bg-white border-2 border-zepto-pink text-zepto-pink text-[9px] font-black py-1.5 rounded-xl uppercase active:bg-zepto-pink active:text-white transition-all"
+                                >
+                                  Add ₹{p.price}
+                                </button>
+                             </div>
+                           ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="py-4 text-center">
+                        {!isReviewing && (
+                          <button 
+                              onClick={reviewCart}
+                              className="text-sm text-gray-500 font-bold flex items-center justify-center gap-2 w-full"
+                          >
+                              Find what's missing <i className="fa-solid fa-chevron-right text-xs"></i>
+                          </button>
+                        )}
+                        {isReviewing && (
+                          <div className="flex flex-col items-center py-4">
+                             <div className="w-8 h-8 border-3 border-zepto-purple/20 border-t-zepto-purple rounded-full animate-spin"></div>
+                             <p className="text-[10px] font-black text-gray-400 uppercase mt-2 tracking-widest">Checking Pairings...</p>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
 
@@ -566,7 +622,7 @@ const App: React.FC = () => {
         </main>
 
         {(view === AppView.PDP || view === AppView.CART || view === AppView.HOME || view === AppView.SEARCH) && (
-          <div className={`absolute ${view === AppView.PDP ? 'bottom-28' : 'bottom-28'} right-6 z-[80] transition-all duration-500 ease-out`}>
+          <div className={`absolute bottom-44 right-6 z-[120] transition-all duration-500 ease-out`}>
             <button 
               onClick={() => { setIsAiMode(!isAiMode); if (isAiMode) setSearchQuery(''); }}
               className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl relative transition-all active:scale-90 ${isAiMode ? 'bg-[#520d52]' : 'bg-zepto-purple'}`}

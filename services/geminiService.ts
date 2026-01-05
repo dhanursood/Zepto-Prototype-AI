@@ -4,97 +4,108 @@ import { MOCK_PRODUCTS } from "../constants";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
+// Highly structured catalog to ensure AI understands the exact schema and available options
 const PRODUCT_CATALOG_STRING = JSON.stringify(MOCK_PRODUCTS.map(p => ({
   id: p.id,
   name: p.name,
   category: p.category,
   price: p.price,
-  unit: p.unit,
   description: p.description,
-  isVeg: p.isVeg,
-  ingredients: p.ingredients,
-  specs: p.specs
+  ingredients: p.ingredients || [],
+  specs: p.specs || {}
 })));
 
 export const getAIRecommendations = async (query: string) => {
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
-    contents: query,
+    contents: `User Query: "${query}"`,
     config: {
-      systemInstruction: `You are the Zepto Plus AI Expert. You help users with shopping, meal planning, and health/beauty advice.
-      Here is our product catalog: ${PRODUCT_CATALOG_STRING}.
+      systemInstruction: `You are the Zepto Plus Expert AI. Your goal is to provide 100% accurate product recommendations from the provided catalog.
       
-      Your Expertise:
-      1. HAIR CARE: Analyze hair types (oily, dry, curly, frizzy) and scalp conditions (dandruff, itchiness). Match them with the ingredients and 'specs' of our shampoos/conditioners.
-      2. SKIN CARE: Analyze skin types (sensitive, oily, dry) and ailments (acne, rashes, prickly heat). Recommend creams/washes based on active ingredients like Salicylic Acid, Calamine, etc.
-      3. RECIPES: For cooking queries, calculate precise ingredients and map to our IDs.
-      4. COMPATIBILITY: For tech queries, check if accessories work with specific devices using 'specs'.
-      5. WELLNESS: Recommend supplements or medicine alternatives (Vaporub, antacids) for common minor ailments.
+      CRITICAL RULES:
+      1. ONLY recommend products that exist in this catalog: ${PRODUCT_CATALOG_STRING}.
+      2. NEVER hallucinate or invent product IDs. If no match is found, return an empty products array.
+      3. COMPATIBILITY: Use the 'specs' field. If a user asks for an iPhone 15 cable, ONLY suggest USB-C cables (p22). If they ask for iPhone 14 or older, suggest Lightning cables (p22b, p22c).
+      4. HEALTH/BEAUTY: Analyze 'ingredients' and 'specs'. For "dandruff", look for "Ketoconazole" (p28b). For "acne", look for "Salicylic Acid" (p6).
+      5. QUANTITIES: Suggest realistic quantities (e.g., 1 for a cable, 2 for milk, etc.).
       
-      Always return a JSON response. Provide clear explanations for your recommendations.
+      Response Format:
+      - summary: A punchy, expert headline.
+      - explanation: A detailed reason WHY these specific products were chosen based on their specs or ingredients.
+      - products: Array of {id, quantity}. IDs must be strings like "p1", "p22", etc.
+      - type: Categorize the query.
       
-      Schema:
-      {
-        "summary": "Short professional headline",
-        "explanation": "Expert advice, usage instructions, or recipe steps. If suggesting a shampoo/cream, explain WHY it fits the hair/skin type or ailment.",
-        "products": [{"id": "p1", "quantity": 1}],
-        "type": "recipe" | "qa" | "compatibility" | "care"
-      }`,
+      If the query is a recipe, list the steps in the explanation and include all necessary ingredients available in the catalog.`,
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
         properties: {
           summary: { type: Type.STRING },
           explanation: { type: Type.STRING },
-          type: { type: Type.STRING },
+          type: { 
+            type: Type.STRING,
+            description: "The type of interaction",
+            enum: ["recipe", "qa", "compatibility", "care"]
+          },
           products: {
             type: Type.ARRAY,
             items: {
               type: Type.OBJECT,
               properties: {
-                id: { type: Type.STRING },
-                quantity: { type: Type.NUMBER }
+                id: { type: Type.STRING, description: "Must exactly match an ID from the catalog" },
+                quantity: { type: Type.NUMBER, description: "Suggested purchase quantity" }
               },
               required: ["id", "quantity"]
             }
           }
         },
-        required: ["summary", "products", "type"]
+        required: ["summary", "products", "type", "explanation"]
       }
     }
   });
 
   try {
-    return JSON.parse(response.text) as any;
+    const data = JSON.parse(response.text);
+    // Final verification: Ensure all returned IDs actually exist in our local mock
+    const validIds = new Set(MOCK_PRODUCTS.map(p => p.id));
+    data.products = data.products.filter((p: any) => validIds.has(p.id));
+    return data;
   } catch (e) {
-    console.error("Failed to parse AI response", e);
+    console.error("AI parse/validation error:", e);
     return null;
   }
 };
 
 export const getCartReview = async (cartItems: any[]) => {
-    const cartSummary = cartItems.map(i => `${i.name} (${i.quantity} x ${i.unit})`).join(', ');
+    const cartSummary = cartItems.map(i => `${i.name} (ID: ${i.id}, Category: ${i.category})`).join(', ');
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Review this shopping cart: ${cartSummary}. Check for missing ingredients if they seem to be cooking a dish, or complementary items.`,
+      contents: `Current Cart: ${cartSummary}`,
       config: {
-        systemInstruction: "You are an expert shopping assistant. Identify if the user is missing something obvious for their purchase (e.g., milk for cereal, oil for frying, compatible charger). Keep it brief and helpful.",
+        systemInstruction: `You are a shopping expert. Analyze the current cart and suggest 3-5 complementary items from the catalog: ${PRODUCT_CATALOG_STRING}. 
+        Focus on creating "complete" sets:
+        - If they have veggies/paneer, suggest missing staples (onions, tomatoes, spices).
+        - If they have a phone case, suggest the correct cable based on specs.
+        - If they have a health issue (shampoo), suggest a related supplement.
+        
+        Return a list of product IDs and a short 3-word reason for each pairing.`,
         responseMimeType: "application/json",
         responseSchema: {
             type: Type.OBJECT,
             properties: {
-                advice: { type: Type.STRING },
+                advice: { type: Type.STRING, description: "General summary of why these are suggested" },
                 suggestions: {
                     type: Type.ARRAY,
                     items: {
                         type: Type.OBJECT,
                         properties: {
                             id: { type: Type.STRING },
-                            reason: { type: Type.STRING }
+                            reason: { type: Type.STRING, description: "Short pairing reason e.g. 'Essential for Pasta'" }
                         }
                     }
                 }
-            }
+            },
+            required: ["advice", "suggestions"]
         }
       }
     });

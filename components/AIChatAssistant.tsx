@@ -24,15 +24,16 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
   }, [initialQuery]);
 
   const handleSearch = async (query: string) => {
-    if (!query.trim()) return;
+    if (!query.trim() || loading) return;
     setLoading(true);
     setError(null);
     try {
       const result = await getAIRecommendations(query);
-      if (result) {
+      if (result && (result.products.length > 0 || result.explanation)) {
         setResponse(result);
       } else {
-        setError("I couldn't find matches. Try something like 'acne care' or 'iPhone 15 cable'.");
+        setResponse(null);
+        setError("I couldn't find exact matches for your request in our current catalog. Try asking about iPhone cables, paneer recipes, or skin care.");
       }
     } catch (err) {
       setError("AI is currently unavailable. Please try again later.");
@@ -42,7 +43,7 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
   };
 
   const handleAddAll = () => {
-    if (!response) return;
+    if (!response || response.products.length === 0) return;
     const itemsToAdd = response.products
       .map(item => {
         const product = MOCK_PRODUCTS.find(p => p.id === item.id);
@@ -50,8 +51,9 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
       })
       .filter((item): item is { product: Product; quantity: number } => item !== null);
     
-    onAddProducts(itemsToAdd);
-    onClose?.();
+    if (itemsToAdd.length > 0) {
+      onAddProducts(itemsToAdd);
+    }
   };
 
   return (
@@ -70,13 +72,11 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
             </div>
           </div>
         </div>
-        <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors">
-            <i className="fa-solid fa-times"></i>
-        </button>
+        {/* Secondary close button removed as the floating toggle handles this */}
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto p-6 scrollbar-hide space-y-8 bg-gray-50/30 pb-32">
+      <div className="flex-1 overflow-y-auto p-6 scrollbar-hide space-y-8 bg-gray-50/30 pb-48">
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center text-center">
             <div className="relative">
@@ -84,12 +84,15 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
                 <div className="absolute inset-0 w-16 h-16 border-4 border-zepto-purple border-t-transparent rounded-full animate-spin"></div>
             </div>
             <p className="text-zepto-purple font-black mt-6 tracking-tight">Thinking like an expert...</p>
-            <p className="text-gray-400 text-xs mt-2 font-medium">Analyzing catalog for {inputValue}</p>
+            <p className="text-gray-400 text-xs mt-2 font-medium">Analyzing catalog for "{inputValue}"</p>
           </div>
         ) : error ? (
-          <div className="bg-red-50 text-red-600 p-5 rounded-2xl text-sm font-bold border border-red-100 flex items-center gap-3">
-            <i className="fa-solid fa-circle-exclamation text-lg"></i>
-            {error}
+          <div className="bg-red-50 text-red-600 p-5 rounded-2xl text-sm font-bold border border-red-100 flex flex-col gap-2">
+            <div className="flex items-center gap-3">
+              <i className="fa-solid fa-circle-exclamation text-lg"></i>
+              <span>No direct match found</span>
+            </div>
+            <p className="text-xs font-medium opacity-80">{error}</p>
           </div>
         ) : response ? (
           <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
@@ -101,57 +104,59 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
               <p className="text-sm text-white/90 font-medium leading-relaxed whitespace-pre-wrap">{response.explanation}</p>
             </div>
 
-            <div className="mb-8">
-              <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 mb-5 flex items-center gap-2">
-                <i className="fa-solid fa-shopping-bag text-zepto-purple/40"></i> Recommended Essentials
-              </h4>
-              <div className="space-y-3">
-                {response.products.map((item) => {
-                  const p = MOCK_PRODUCTS.find(prod => prod.id === item.id);
-                  if (!p) return null;
-                  return (
-                    <div key={p.id} className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-gray-100 zepto-card-shadow group hover:border-zepto-purple transition-all">
-                      <div className="w-16 h-16 bg-gray-50 rounded-xl p-2 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <img src={p.imageUrl} alt={p.name} className="w-full h-full object-contain mix-blend-multiply" />
+            {response.products.length > 0 && (
+              <div className="mb-8">
+                <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 mb-5 flex items-center gap-2">
+                  <i className="fa-solid fa-shopping-bag text-zepto-purple/40"></i> Recommended Essentials
+                </h4>
+                <div className="space-y-3">
+                  {response.products.map((item) => {
+                    const p = MOCK_PRODUCTS.find(prod => prod.id === item.id);
+                    if (!p) return null;
+                    return (
+                      <div key={p.id} className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-gray-100 zepto-card-shadow group hover:border-zepto-purple transition-all">
+                        <div className="w-16 h-16 bg-gray-50 rounded-xl p-2 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <img src={p.imageUrl} alt={p.name} className="w-full h-full object-contain mix-blend-multiply" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-black text-gray-900 leading-tight mb-1">{p.name}</p>
+                          <p className="text-[11px] text-gray-400 font-bold">{p.unit} • <span className="text-zepto-purple">₹{p.price}</span></p>
+                        </div>
+                        <div className="text-zepto-pink font-black text-sm bg-zepto-pink-light w-10 h-10 rounded-xl flex items-center justify-center border border-zepto-pink/10 shadow-sm">
+                          x{item.quantity}
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-black text-gray-900 leading-tight mb-1">{p.name}</p>
-                        <p className="text-[11px] text-gray-400 font-bold">{p.unit} • <span className="text-zepto-purple">₹{p.price}</span></p>
-                      </div>
-                      <div className="text-zepto-pink font-black text-sm bg-zepto-pink-light w-10 h-10 rounded-xl flex items-center justify-center border border-zepto-pink/10 shadow-sm">
-                        x{item.quantity}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+                    );
+                  })}
+                </div>
 
-            <button
-              onClick={handleAddAll}
-              className="w-full bg-zepto-pink hover:bg-zepto-pink-dark text-white font-black py-5 rounded-2xl shadow-xl shadow-zepto-pink/20 active:scale-95 transition-all mb-8 flex items-center justify-center gap-3 uppercase tracking-widest text-sm"
-            >
-              Add Everything <i className="fa-solid fa-cart-plus ml-2"></i>
-            </button>
+                <button
+                  onClick={handleAddAll}
+                  className="w-full bg-zepto-pink hover:bg-zepto-pink-dark text-white font-black py-5 rounded-2xl shadow-xl shadow-zepto-pink/20 active:scale-95 transition-all mt-6 flex items-center justify-center gap-3 uppercase tracking-widest text-sm"
+                >
+                  Add Selection To Cart <i className="fa-solid fa-cart-plus ml-2"></i>
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="py-16 text-center text-gray-400 flex flex-col items-center">
               <div className="w-20 h-20 bg-zepto-purple-light rounded-3xl flex items-center justify-center mb-6 shadow-inner">
                 <i className="fa-solid fa-magic-wand-sparkles text-3xl text-zepto-purple opacity-40"></i>
               </div>
-              <h3 className="text-gray-900 font-black text-lg mb-2">How can I help you today?</h3>
-              <p className="text-sm font-medium text-gray-400 max-w-[240px]">Ask about recipes, compatibility, or wellness.</p>
+              <h3 className="text-gray-900 font-black text-lg mb-2">How can I help you?</h3>
+              <p className="text-sm font-medium text-gray-400 max-w-[240px]">Ask for technical compatibility, recipes, or personal care advice.</p>
           </div>
         )}
       </div>
 
       {/* Input Section */}
-      <div className="p-6 pt-4 bg-white border-t border-gray-100 pb-16 absolute bottom-0 left-0 right-0">
+      <div className="p-6 pt-4 bg-white border-t border-gray-100 pb-16 absolute bottom-0 left-0 right-0 z-20">
         <div className="relative">
             <textarea
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Write your message..."
+                placeholder="Message Zepto AI..."
                 className="w-full p-4 pr-14 rounded-[1.5rem] bg-gray-100 border-2 border-transparent outline-none focus:bg-white focus:border-zepto-purple transition-all resize-none h-20 text-sm font-semibold placeholder:text-gray-400"
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -169,7 +174,7 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
             </button>
         </div>
         <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-hide">
-            {['Cable for iPhone 15', 'Shampoo for dandruff', 'Acne wash'].map(tag => (
+            {['Cable for iPhone 15', 'Paneer recipe', 'Rash on skin'].map(tag => (
                 <button 
                     key={tag}
                     onClick={() => { setInputValue(tag); handleSearch(tag); }}
