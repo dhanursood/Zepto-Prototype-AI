@@ -596,7 +596,7 @@ const App: React.FC = () => {
       {isAiMode && (
         <div className="fixed inset-0 z-[100] flex flex-col justify-end bg-zepto-purple/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="absolute inset-0" onClick={() => setIsAiMode(false)}></div>
-          <div className="relative z-[110] animate-in slide-in-from-bottom-full duration-500">
+          <div className="relative z-[110] animate-in slide-in-from-bottom-full duration-500 w-full max-w-md mx-auto">
              <AIChatAssistant 
                 onAddProducts={handleAIAdd} 
                 initialQuery={searchQuery}
