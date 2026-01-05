@@ -128,20 +128,51 @@ const App: React.FC = () => {
     setCartAdvice(result.advice);
   };
 
-  const handleSeeAll = () => {
-    setSearchQuery('');
+  const handleSeeAll = (cat?: string) => {
+    if (cat) setSearchQuery(cat);
+    else setSearchQuery('');
     setView(AppView.SEARCH);
   };
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+  const getProductsByCategory = (cat: string, limit: number = 4) => {
+    return MOCK_PRODUCTS.filter(p => p.category === cat).slice(0, limit);
   };
+
+  const renderHorizontalShelf = (title: string, category: string, icon: string) => (
+    <div className="bg-white p-4 -mx-4">
+      <div className="flex justify-between items-center mb-4 px-1">
+        <h3 className="font-black text-gray-900 text-lg tracking-tight flex items-center gap-2">
+          <i className={`fa-solid ${icon} text-zepto-purple/20`}></i> {title}
+        </h3>
+        <span 
+          onClick={() => handleSeeAll(category)}
+          className="text-zepto-pink text-sm font-bold cursor-pointer hover:underline transition-all"
+        >
+          See All
+        </span>
+      </div>
+      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 px-1">
+        {getProductsByCategory(category, 8).map(p => (
+           <div key={p.id} className="min-w-[150px] max-w-[150px]">
+              <ProductCard
+                product={p}
+                quantity={cart[p.id]?.quantity || 0}
+                onAdd={addToCart}
+                onRemove={removeFromCart}
+                onClick={(prod) => { setSelectedProduct(prod); setView(AppView.PDP); }}
+              />
+           </div>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen relative flex flex-col shadow-xl overflow-hidden">
       <Header 
         onSearchChange={handleSearchChange} 
         onSearchSubmit={handleSearchSubmit} 
+        onProfileClick={() => setView(AppView.PROFILE)}
         searchQuery={searchQuery} 
       />
 
@@ -150,30 +181,32 @@ const App: React.FC = () => {
         className="flex-1 pb-24 overflow-y-auto scrollbar-hide bg-[#f8f9fa]"
       >
         {view === AppView.HOME && (
-          <div className="p-4 space-y-6">
+          <div className="p-4 space-y-8">
+            {/* Main Banner */}
             <div className="bg-gradient-to-br from-zepto-purple to-indigo-900 p-5 rounded-2xl text-white shadow-lg relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform"></div>
-              <p className="text-[10px] uppercase font-bold tracking-widest mb-1 opacity-80">Free Delivery</p>
-              <h2 className="text-2xl font-black mb-3 leading-tight tracking-tight">Groceries to Gadgets in 10 Mins!</h2>
+              <p className="text-[10px] uppercase font-bold tracking-widest mb-1 opacity-80">Flash Offer</p>
+              <h2 className="text-2xl font-black mb-3 leading-tight tracking-tight">Summer Essentials Under ₹99!</h2>
               <button 
-                onClick={handleSeeAll}
+                onClick={() => handleSeeAll()}
                 className="bg-zepto-pink hover:bg-zepto-pink-dark text-white font-bold px-5 py-2 rounded-xl text-sm active:scale-95 transition-transform shadow-md uppercase tracking-wider"
               >
-                Shop Now
+                Shop Deals
               </button>
             </div>
 
+            {/* Shop by Category Grid */}
             <div>
               <div className="flex justify-between items-center mb-4 px-1">
-                <h3 className="font-bold text-gray-900 text-lg tracking-tight">Shop by Category</h3>
+                <h3 className="font-bold text-gray-900 text-lg tracking-tight">Explore Categories</h3>
                 <span 
-                  onClick={handleSeeAll}
+                  onClick={() => handleSeeAll()}
                   className="text-zepto-pink text-sm font-bold cursor-pointer hover:underline transition-all"
                 >
                   See All
                 </span>
               </div>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-4 gap-y-5 gap-x-3">
                 {CATEGORIES.map(cat => (
                   <CategoryCard 
                     key={cat.name}
@@ -185,18 +218,19 @@ const App: React.FC = () => {
               </div>
             </div>
 
+            {/* Trending Section */}
             <div>
               <div className="flex justify-between items-center mb-4 px-1">
                 <h3 className="font-bold text-gray-900 text-lg tracking-tight">Trending Now</h3>
                 <span 
-                  onClick={handleSeeAll}
+                  onClick={() => handleSeeAll()}
                   className="text-zepto-pink text-sm font-bold cursor-pointer hover:underline transition-all"
                 >
                   See All
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {MOCK_PRODUCTS.slice(0, 4).map(p => (
+                {MOCK_PRODUCTS.filter(p => ['p1', 'p7', 'p20', 'p13', 'p6', 'p40'].includes(p.id)).slice(0, 4).map(p => (
                   <ProductCard
                     key={p.id}
                     product={p}
@@ -208,6 +242,69 @@ const App: React.FC = () => {
                 ))}
               </div>
             </div>
+
+            {/* Shelf Sections */}
+            {renderHorizontalShelf('Cool Drinks & Sips', 'Beverages', 'fa-wine-glass-empty')}
+            
+            {renderHorizontalShelf('Daily Essentials', 'Personal Care', 'fa-soap')}
+
+            {/* Beauty & Care Store */}
+            <div>
+              <div className="flex justify-between items-center mb-4 px-1">
+                <h3 className="font-black text-gray-900 text-lg tracking-tight">The Beauty Store</h3>
+                <span 
+                  onClick={() => handleSeeAll('Beauty')}
+                  className="text-zepto-pink text-sm font-bold cursor-pointer hover:underline transition-all"
+                >
+                  See All
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {getProductsByCategory('Beauty', 4).map(p => (
+                  <ProductCard
+                    key={p.id}
+                    product={p}
+                    quantity={cart[p.id]?.quantity || 0}
+                    onAdd={addToCart}
+                    onRemove={removeFromCart}
+                    onClick={(prod) => { setSelectedProduct(prod); setView(AppView.PDP); }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {renderHorizontalShelf('Gadgets & Tech', 'Electronics', 'fa-microchip')}
+
+            {/* Instant Food Section */}
+            <div>
+              <div className="flex justify-between items-center mb-4 px-1">
+                <h3 className="font-black text-gray-900 text-lg tracking-tight">Instant Cravings</h3>
+                <span 
+                  onClick={() => handleSeeAll('Instant Food')}
+                  className="text-zepto-pink text-sm font-bold cursor-pointer hover:underline transition-all"
+                >
+                  See All
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {getProductsByCategory('Instant Food', 4).map(p => (
+                  <ProductCard
+                    key={p.id}
+                    product={p}
+                    quantity={cart[p.id]?.quantity || 0}
+                    onAdd={addToCart}
+                    onRemove={removeFromCart}
+                    onClick={(prod) => { setSelectedProduct(prod); setView(AppView.PDP); }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {renderHorizontalShelf('Health & Fitness', 'Supplements', 'fa-heart-pulse')}
+            
+            {renderHorizontalShelf('Wellness & Self Care', 'Self Care', 'fa-spa')}
+            
+            <div className="h-10"></div>
           </div>
         )}
 
@@ -289,7 +386,7 @@ const App: React.FC = () => {
                 src={selectedProduct.imageUrl} 
                 alt={selectedProduct.name} 
                 className="h-full object-contain mix-blend-multiply drop-shadow-sm" 
-                onError={handleImageError}
+                onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE; }}
               />
             </div>
             
@@ -322,10 +419,22 @@ const App: React.FC = () => {
                         <p className="text-xs text-zepto-purple font-semibold leading-relaxed">{selectedProduct.ingredients.join(' • ')}</p>
                     </div>
                 )}
+                {selectedProduct.specs && (
+                   <div>
+                      <h3 className="font-black text-gray-900 mb-3">Specifications</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        {Object.entries(selectedProduct.specs).map(([key, val]) => (
+                          <div key={key} className="bg-gray-50 p-3 rounded-xl">
+                            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">{key}</p>
+                            <p className="text-xs font-bold text-gray-700">{val}</p>
+                          </div>
+                        ))}
+                      </div>
+                   </div>
+                )}
               </div>
 
               <div className="h-40"></div>
-              {/* Floating Add to Cart for PDP - Prevents overlap with AI Button */}
               <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto px-6 z-40 bg-white/80 backdrop-blur-md py-4 border-t border-gray-100">
                 <button 
                   onClick={() => addToCart(selectedProduct)}
@@ -352,7 +461,7 @@ const App: React.FC = () => {
                           src={item.imageUrl} 
                           alt={item.name} 
                           className="w-full h-full object-contain mix-blend-multiply" 
-                          onError={handleImageError}
+                          onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE; }}
                         />
                       </div>
                       <div className="flex-1">
@@ -428,9 +537,41 @@ const App: React.FC = () => {
             )}
           </div>
         )}
+
+        {view === AppView.PROFILE && (
+          <div className="p-8 text-center flex flex-col items-center min-h-screen bg-white animate-in fade-in duration-300">
+            <div className="w-24 h-24 bg-zepto-purple-light rounded-3xl flex items-center justify-center mb-6 shadow-inner">
+              <i className="fa-solid fa-user text-4xl text-zepto-purple"></i>
+            </div>
+            <h2 className="text-2xl font-black mb-2 text-gray-900">My Profile</h2>
+            <p className="text-sm font-bold text-gray-400 mb-8 max-w-[240px]">Manage your addresses, orders & payment methods</p>
+            
+            <div className="w-full space-y-4 text-left">
+              {[
+                { name: 'Addresses', icon: 'fa-location-dot' },
+                { name: 'Order History', icon: 'fa-box-open' },
+                { name: 'Payment Methods', icon: 'fa-credit-card' },
+                { name: 'Support & Help', icon: 'fa-circle-question' }
+              ].map(item => (
+                <div key={item.name} className="bg-white p-5 rounded-2xl border border-gray-100 flex justify-between items-center zepto-card-shadow active:scale-[0.98] transition-all cursor-pointer">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-zepto-purple/40">
+                      <i className={`fa-solid ${item.icon}`}></i>
+                    </div>
+                    <span className="font-black text-gray-800 tracking-tight">{item.name}</span>
+                  </div>
+                  <i className="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
+                </div>
+              ))}
+            </div>
+
+            <button className="mt-12 text-zepto-pink font-black text-xs uppercase tracking-widest">
+              Log Out
+            </button>
+          </div>
+        )}
       </main>
 
-      {/* Floating AI Assistant Trigger - Adjusted vertical position on PDP to avoid overlap */}
       {(view === AppView.PDP || view === AppView.CART || view === AppView.HOME || view === AppView.SEARCH) && (
         <div className={`fixed ${view === AppView.PDP ? 'bottom-52' : 'bottom-28'} right-6 z-[80] transition-all duration-500 ease-out`}>
           <button 
@@ -452,7 +593,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* AI Assistant Overlay */}
       {isAiMode && (
         <div className="fixed inset-0 z-[100] flex flex-col justify-end bg-zepto-purple/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="absolute inset-0" onClick={() => setIsAiMode(false)}></div>
@@ -466,7 +606,6 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-100 flex justify-around p-3 z-[90] shadow-2xl">
         <button onClick={() => { setView(AppView.HOME); setSearchQuery(''); }} className={`flex flex-col items-center gap-1 flex-1 py-1.5 rounded-2xl transition-all ${view === AppView.HOME ? 'text-zepto-purple bg-zepto-purple-light' : 'text-gray-400 hover:text-zepto-purple/50'}`}>
           <i className="fa-solid fa-house text-lg"></i>

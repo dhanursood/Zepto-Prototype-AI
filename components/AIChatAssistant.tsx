@@ -140,7 +140,7 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
                 <i className="fa-solid fa-magic-wand-sparkles text-3xl text-zepto-purple opacity-40"></i>
               </div>
               <h3 className="text-gray-900 font-black text-lg mb-2">How can I help you today?</h3>
-              <p className="text-sm font-medium text-gray-400 max-w-[240px]">Ask about recipes, product advice, or device compatibility.</p>
+              <p className="text-sm font-medium text-gray-400 max-w-[240px]">Ask about recipes, hair types, skin ailments, or vitamins.</p>
           </div>
         )}
       </div>
@@ -169,7 +169,7 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
             </button>
         </div>
         <div className="mt-4 flex gap-2 overflow-x-auto scrollbar-hide">
-            {['Paneer recipe', 'iPhone case check', 'Acne face wash'].map(tag => (
+            {['Shampoo for dandruff', 'Rash on skin', 'Best Biotin', 'Acne wash'].map(tag => (
                 <button 
                     key={tag}
                     onClick={() => { setInputValue(tag); handleSearch(tag); }}

@@ -4,10 +4,11 @@ import React from 'react';
 interface HeaderProps {
   onSearchChange: (query: string) => void;
   onSearchSubmit: (query: string) => void;
+  onProfileClick?: () => void;
   searchQuery: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ onSearchChange, onSearchSubmit, searchQuery }) => {
+const Header: React.FC<HeaderProps> = ({ onSearchChange, onSearchSubmit, onProfileClick, searchQuery }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSearchSubmit(searchQuery);
@@ -17,14 +18,17 @@ const Header: React.FC<HeaderProps> = ({ onSearchChange, onSearchSubmit, searchQ
     <div className="bg-zepto-purple text-white p-4 sticky top-0 z-50 shadow-lg">
       <div className="flex items-center justify-between mb-4">
         <div className="flex flex-col">
-          <div className="flex items-center gap-1 font-black text-lg tracking-tight">
+          <div className="flex items-center gap-1 font-black text-lg tracking-tight cursor-pointer active:opacity-70 transition-opacity">
             Delivery in 10-15 Mins <i className="fa-solid fa-chevron-down text-[10px] mt-1"></i>
           </div>
           <div className="text-[11px] font-bold opacity-60 truncate max-w-[220px]">
             HSR Layout, Bangalore - 560102
           </div>
         </div>
-        <button className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center border border-white/5 active:scale-95 transition-transform">
+        <button 
+          onClick={onProfileClick}
+          className="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center border border-white/5 active:scale-95 transition-transform"
+        >
           <i className="fa-solid fa-user text-white text-sm"></i>
         </button>
       </div>
