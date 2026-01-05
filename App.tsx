@@ -1,9 +1,10 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Product, CartItem, AppView } from './types';
-import { MOCK_PRODUCTS, CATEGORIES } from './constants';
+import { MOCK_PRODUCTS, CATEGORIES, FALLBACK_IMAGE } from './constants';
 import Header from './components/Header';
 import ProductCard from './components/ProductCard';
+import CategoryCard from './components/CategoryCard';
 import AIChatAssistant from './components/AIChatAssistant';
 import { getCartReview } from './services/geminiService';
 
@@ -14,10 +15,18 @@ const App: React.FC = () => {
   const [isAiMode, setIsAiMode] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartAdvice, setCartAdvice] = useState<string | null>(null);
+  const scrollContainerRef = useRef<HTMLElement>(null);
 
   const cartItems = useMemo(() => Object.values(cart), [cart]);
   const cartTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
+  // Scroll to top when view changes
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [view, selectedProduct]);
 
   const filteredProducts = useMemo(() => {
     if (!searchQuery) return MOCK_PRODUCTS;
@@ -124,6 +133,10 @@ const App: React.FC = () => {
     setView(AppView.SEARCH);
   };
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+  };
+
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen relative flex flex-col shadow-xl overflow-hidden">
       <Header 
@@ -132,14 +145,22 @@ const App: React.FC = () => {
         searchQuery={searchQuery} 
       />
 
-      <main className="flex-1 pb-24 overflow-y-auto scrollbar-hide bg-[#f8f9fa]">
+      <main 
+        ref={scrollContainerRef as any}
+        className="flex-1 pb-24 overflow-y-auto scrollbar-hide bg-[#f8f9fa]"
+      >
         {view === AppView.HOME && (
           <div className="p-4 space-y-6">
             <div className="bg-gradient-to-br from-zepto-purple to-indigo-900 p-5 rounded-2xl text-white shadow-lg relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform"></div>
               <p className="text-[10px] uppercase font-bold tracking-widest mb-1 opacity-80">Free Delivery</p>
               <h2 className="text-2xl font-black mb-3 leading-tight tracking-tight">Groceries to Gadgets in 10 Mins!</h2>
-              <button className="bg-zepto-pink text-white font-bold px-5 py-2 rounded-xl text-sm active:scale-95 transition-transform shadow-md uppercase tracking-wider">Shop Now</button>
+              <button 
+                onClick={handleSeeAll}
+                className="bg-zepto-pink hover:bg-zepto-pink-dark text-white font-bold px-5 py-2 rounded-xl text-sm active:scale-95 transition-transform shadow-md uppercase tracking-wider"
+              >
+                Shop Now
+              </button>
             </div>
 
             <div>
@@ -147,26 +168,19 @@ const App: React.FC = () => {
                 <h3 className="font-bold text-gray-900 text-lg tracking-tight">Shop by Category</h3>
                 <span 
                   onClick={handleSeeAll}
-                  className="text-zepto-pink text-sm font-bold cursor-pointer hover:underline"
+                  className="text-zepto-pink text-sm font-bold cursor-pointer hover:underline transition-all"
                 >
                   See All
                 </span>
               </div>
               <div className="grid grid-cols-4 gap-3">
                 {CATEGORIES.map(cat => (
-                  <div key={cat.name} className="flex flex-col items-center gap-2 group cursor-pointer" onClick={() => { setSearchQuery(cat.name); setView(AppView.SEARCH); }}>
-                    <div className="w-16 h-16 bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group-hover:border-zepto-purple transition-colors relative flex items-center justify-center">
-                      <img 
-                        src={(cat as any).image} 
-                        alt={cat.name} 
-                        className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" 
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&h=200&fit=crop';
-                        }}
-                      />
-                    </div>
-                    <span className="text-[10px] text-center font-bold text-gray-800 truncate w-full group-hover:text-zepto-purple">{cat.name}</span>
-                  </div>
+                  <CategoryCard 
+                    key={cat.name}
+                    name={cat.name}
+                    image={cat.image}
+                    onClick={() => { setSearchQuery(cat.name); setView(AppView.SEARCH); }}
+                  />
                 ))}
               </div>
             </div>
@@ -176,7 +190,7 @@ const App: React.FC = () => {
                 <h3 className="font-bold text-gray-900 text-lg tracking-tight">Trending Now</h3>
                 <span 
                   onClick={handleSeeAll}
-                  className="text-zepto-pink text-sm font-bold cursor-pointer hover:underline"
+                  className="text-zepto-pink text-sm font-bold cursor-pointer hover:underline transition-all"
                 >
                   See All
                 </span>
@@ -199,7 +213,6 @@ const App: React.FC = () => {
 
         {view === AppView.SEARCH && (
           <div className="p-4">
-            {/* Search Query Suggestions including AI option */}
             {searchQuery.trim() && (
               <div className="mb-6 bg-white rounded-2xl zepto-shadow overflow-hidden">
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-4 py-3 bg-gray-50">Suggestions</p>
@@ -234,7 +247,7 @@ const App: React.FC = () => {
             {filteredProducts.length > 0 && (
               <>
                 <h3 className="text-xs font-black uppercase text-gray-400 mb-4 tracking-wider flex items-center gap-2">
-                  <i className="fa-solid fa-list-ul text-zepto-purple"></i> Product Results
+                  <i className="fa-solid fa-list-ul text-zepto-purple"></i> Product Results ({filteredProducts.length})
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   {filteredProducts.map(p => (
@@ -264,7 +277,7 @@ const App: React.FC = () => {
         )}
 
         {view === AppView.PDP && selectedProduct && (
-          <div className="bg-white min-h-screen">
+          <div className="bg-white min-h-screen animate-in fade-in duration-300">
             <div className="relative h-80 flex items-center justify-center p-8 bg-gray-50">
               <button 
                 onClick={() => setView(AppView.HOME)} 
@@ -276,9 +289,7 @@ const App: React.FC = () => {
                 src={selectedProduct.imageUrl} 
                 alt={selectedProduct.name} 
                 className="h-full object-contain mix-blend-multiply drop-shadow-sm" 
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=400&fit=crop';
-                }}
+                onError={handleImageError}
               />
             </div>
             
@@ -314,7 +325,8 @@ const App: React.FC = () => {
               </div>
 
               <div className="h-40"></div>
-              <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto px-6 z-40 bg-white/80 backdrop-blur-md py-4">
+              {/* Floating Add to Cart for PDP - Prevents overlap with AI Button */}
+              <div className="fixed bottom-24 left-0 right-0 max-w-md mx-auto px-6 z-40 bg-white/80 backdrop-blur-md py-4 border-t border-gray-100">
                 <button 
                   onClick={() => addToCart(selectedProduct)}
                   className="w-full bg-zepto-pink hover:bg-zepto-pink-dark text-white font-black py-5 rounded-2xl shadow-xl shadow-zepto-pink/20 uppercase tracking-widest active:scale-[0.98] transition-all"
@@ -327,7 +339,7 @@ const App: React.FC = () => {
         )}
 
         {view === AppView.CART && (
-          <div className="p-4 flex flex-col gap-4 pb-32">
+          <div className="p-4 flex flex-col gap-4 pb-32 animate-in fade-in duration-300">
             <h2 className="text-2xl font-black text-gray-900 mb-2">Your Basket</h2>
             
             {cartItems.length > 0 ? (
@@ -335,14 +347,12 @@ const App: React.FC = () => {
                 <div className="space-y-4">
                   {cartItems.map(item => (
                     <div key={item.id} className="bg-white p-4 rounded-2xl flex items-center gap-4 border border-gray-100 zepto-card-shadow">
-                      <div className="w-16 h-16 bg-gray-50 rounded-xl p-2 flex items-center justify-center">
+                      <div className="w-16 h-16 bg-gray-50 rounded-xl p-2 flex items-center justify-center overflow-hidden">
                         <img 
                           src={item.imageUrl} 
                           alt={item.name} 
                           className="w-full h-full object-contain mix-blend-multiply" 
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&h=200&fit=crop';
-                          }}
+                          onError={handleImageError}
                         />
                       </div>
                       <div className="flex-1">
@@ -404,7 +414,7 @@ const App: React.FC = () => {
               </>
             ) : (
               <div className="py-24 text-center flex flex-col items-center">
-                <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
                   <i className="fa-solid fa-cart-shopping text-4xl text-gray-200"></i>
                 </div>
                 <p className="text-gray-400 font-bold text-lg mb-6">Your basket is empty</p>
@@ -420,11 +430,13 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {(view === AppView.PDP || view === AppView.CART) && (
-        <div className={`fixed ${view === AppView.PDP ? 'bottom-48' : 'bottom-24'} right-6 z-[80] transition-all duration-500 ease-out`}>
+      {/* Floating AI Assistant Trigger - Adjusted vertical position on PDP to avoid overlap */}
+      {(view === AppView.PDP || view === AppView.CART || view === AppView.HOME || view === AppView.SEARCH) && (
+        <div className={`fixed ${view === AppView.PDP ? 'bottom-52' : 'bottom-28'} right-6 z-[80] transition-all duration-500 ease-out`}>
           <button 
             onClick={() => { setIsAiMode(!isAiMode); if (isAiMode) setSearchQuery(''); }}
             className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl relative transition-all active:scale-90 ${isAiMode ? 'bg-[#520d52]' : 'bg-zepto-purple'}`}
+            title="Zepto AI Assistant"
           >
             {isAiMode ? (
                 <div className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center">
@@ -440,6 +452,7 @@ const App: React.FC = () => {
         </div>
       )}
 
+      {/* AI Assistant Overlay */}
       {isAiMode && (
         <div className="fixed inset-0 z-[100] flex flex-col justify-end bg-zepto-purple/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="absolute inset-0" onClick={() => setIsAiMode(false)}></div>
@@ -453,8 +466,9 @@ const App: React.FC = () => {
         </div>
       )}
 
+      {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-100 flex justify-around p-3 z-[90] shadow-2xl">
-        <button onClick={() => setView(AppView.HOME)} className={`flex flex-col items-center gap-1 flex-1 py-1.5 rounded-2xl transition-all ${view === AppView.HOME ? 'text-zepto-purple bg-zepto-purple-light' : 'text-gray-400 hover:text-zepto-purple/50'}`}>
+        <button onClick={() => { setView(AppView.HOME); setSearchQuery(''); }} className={`flex flex-col items-center gap-1 flex-1 py-1.5 rounded-2xl transition-all ${view === AppView.HOME ? 'text-zepto-purple bg-zepto-purple-light' : 'text-gray-400 hover:text-zepto-purple/50'}`}>
           <i className="fa-solid fa-house text-lg"></i>
           <span className="text-[10px] font-black uppercase tracking-tight">Home</span>
         </button>
@@ -465,7 +479,7 @@ const App: React.FC = () => {
         <button onClick={() => setView(AppView.CART)} className={`flex flex-col items-center gap-1 relative flex-1 py-1.5 rounded-2xl transition-all ${view === AppView.CART ? 'text-zepto-purple bg-zepto-purple-light' : 'text-gray-400 hover:text-zepto-purple/50'}`}>
           <i className="fa-solid fa-cart-shopping text-lg"></i>
           {totalQuantity > 0 && (
-            <span className="absolute top-1 right-1/4 bg-zepto-pink text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full ring-2 ring-white">
+            <span className="absolute top-1 right-1/4 bg-zepto-pink text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full ring-2 ring-white animate-bounce">
               {totalQuantity}
             </span>
           )}

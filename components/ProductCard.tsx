@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Product } from '../types';
+import { FALLBACK_IMAGE } from '../constants';
 
 interface ProductCardProps {
   product: Product;
@@ -11,18 +12,21 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, quantity, onAdd, onRemove, onClick }) => {
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=400&fit=crop';
+  const [imgSrc, setImgSrc] = useState(product.imageUrl);
+
+  const handleImageError = () => {
+    setImgSrc(FALLBACK_IMAGE);
   };
 
   return (
     <div className="bg-white rounded-2xl p-3 border border-gray-100 zepto-card-shadow flex flex-col h-full hover:border-zepto-purple/20 transition-all group">
       <div className="relative cursor-pointer mb-3 bg-gray-50 rounded-xl p-2 h-36 flex items-center justify-center overflow-hidden" onClick={() => onClick?.(product)}>
         <img 
-            src={product.imageUrl} 
+            src={imgSrc} 
             alt={product.name} 
             className="max-w-full max-h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-300" 
             onError={handleImageError}
+            loading="lazy"
         />
         {product.isVeg && (
           <div className="absolute top-2 left-2 bg-white border border-green-600 w-4 h-4 flex items-center justify-center rounded-[2px] shadow-sm">

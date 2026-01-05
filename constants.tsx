@@ -9,7 +9,7 @@ export const MOCK_PRODUCTS: Product[] = [
     originalPrice: 110,
     unit: '200g',
     category: 'Dairy',
-    imageUrl: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=400&h=400&fit=crop',
+    imageUrl: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400&h=400&fit=crop',
     description: 'Fresh and soft malai paneer, perfect for curry.',
     isVeg: true
   },
@@ -88,41 +88,43 @@ export const CATEGORIES = [
   { 
     name: 'Vegetables', 
     icon: '🥕', 
-    image: 'https://images.unsplash.com/photo-1566385101042-1a0da0c12332?w=200&h=200&fit=crop' 
+    image: 'https://images.unsplash.com/photo-1597362871122-33169a63bc59?w=300&h=300&fit=crop' 
   },
   { 
     name: 'Fruits', 
     icon: '🍎', 
-    image: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=200&h=200&fit=crop' 
+    image: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=300&h=300&fit=crop' 
   },
   { 
     name: 'Dairy', 
     icon: '🥛', 
-    image: 'https://images.unsplash.com/photo-1550583724-1255818c0533?w=200&h=200&fit=crop' 
+    image: 'https://images.unsplash.com/photo-1563636619-e91082a83dca?w=300&h=300&fit=crop' 
   },
   { 
     name: 'Meat', 
     icon: '🥩', 
-    image: 'https://images.unsplash.com/photo-1607623814075-e45df204346d?w=200&h=200&fit=crop' 
+    image: 'https://images.unsplash.com/photo-1607623814075-e45df204346d?w=300&h=300&fit=crop' 
   },
   { 
     name: 'Personal Care', 
     icon: '🧴', 
-    image: 'https://images.unsplash.com/photo-1556229162-5c63ed9c4ffb?w=200&h=200&fit=crop' 
+    image: 'https://images.unsplash.com/photo-1620916566398-39f1143aba7a?w=300&h=300&fit=crop' 
   },
   { 
     name: 'Electronics', 
     icon: '🔌', 
-    image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=200&h=200&fit=crop' 
+    image: 'https://images.unsplash.com/photo-1546868831-70c266a858e2?w=300&h=300&fit=crop' 
   },
   { 
     name: 'Grocery', 
     icon: '🍚', 
-    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&h=200&fit=crop' 
+    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300&h=300&fit=crop' 
   },
   { 
     name: 'Snacks', 
-    icon: ' popcorn ', 
-    image: 'https://images.unsplash.com/photo-1599490659223-930b447ffad6?w=200&h=200&fit=crop' 
+    icon: '🍿', 
+    image: 'https://images.unsplash.com/photo-1599490659223-930b447ffad6?w=300&h=300&fit=crop' 
   }
 ];
+
+export const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=400&h=400&fit=crop';
