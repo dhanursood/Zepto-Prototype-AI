@@ -13,6 +13,7 @@ const App: React.FC = () => {
   const [cart, setCart] = useState<Record<string, CartItem>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [isAiMode, setIsAiMode] = useState(false);
+  const [isAiInputFocused, setIsAiInputFocused] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartAdvice, setCartAdvice] = useState<string | null>(null);
   const [cartSuggestions, setCartSuggestions] = useState<{ product: Product; reason: string }[]>([]);
@@ -118,9 +119,7 @@ const App: React.FC = () => {
 
   const handleAIAdd = (items: { product: Product; quantity: number }[]) => {
     items.forEach(item => addToCart(item.product, item.quantity));
-    setIsAiMode(false);
     setSearchQuery('');
-    // Optionally stay on PDP or go home
   };
 
   const reviewCart = async () => {
@@ -196,7 +195,7 @@ const App: React.FC = () => {
 
         <main 
           ref={scrollContainerRef as any}
-          className="flex-1 pb-32 overflow-y-auto scrollbar-hide bg-[#f8f9fa]"
+          className={`flex-1 overflow-y-auto scrollbar-hide bg-[#f8f9fa] transition-all duration-300 ${totalQuantity > 0 ? 'pb-48' : 'pb-32'}`}
         >
           {view === AppView.HOME && (
             <div className="p-4 space-y-8">
@@ -685,36 +684,63 @@ const App: React.FC = () => {
           )}
         </main>
 
+        {/* Cart Banner - Dynamic Positioning */}
+        {totalQuantity > 0 && view !== AppView.CART && (
+          <div 
+            onClick={() => setView(AppView.CART)}
+            className={`absolute left-4 right-4 bg-zepto-purple text-white rounded-2xl flex items-center justify-between shadow-2xl z-[150] transition-all duration-500 ease-in-out cursor-pointer active:scale-95 ring-1 ring-white/10 ${
+              isAiMode 
+                ? 'bottom-4 py-3 px-4'
+                : 'bottom-24 py-3 px-4'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center relative transition-all">
+                <i className="fa-solid fa-cart-shopping text-sm"></i>
+                <span className="absolute -top-1 -right-1 bg-zepto-pink text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-black ring-2 ring-zepto-purple">
+                  {totalQuantity}
+                </span>
+              </div>
+              <div>
+                <p className="font-black uppercase tracking-widest opacity-70 leading-none mb-1 transition-all text-[10px]">
+                  {totalQuantity} {totalQuantity === 1 ? 'Item' : 'Items'} Added
+                </p>
+                <p className="font-black leading-none transition-all text-sm">₹{cartTotal}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 font-black uppercase tracking-widest bg-white/10 rounded-xl transition-all text-xs px-4 py-2">
+              View Cart <i className="fa-solid fa-chevron-right text-[10px]"></i>
+            </div>
+          </div>
+        )}
+
+        {/* AI FAB Button */}
         {(view === AppView.PDP || view === AppView.CART || view === AppView.HOME || view === AppView.SEARCH) && (
-          <div className={`absolute bottom-44 right-6 z-[120] transition-all duration-500 ease-out`}>
+          <div className={`absolute ${totalQuantity > 0 && view !== AppView.CART ? 'bottom-48' : 'bottom-44'} right-6 z-[120] transition-all duration-500 ease-out ${isAiMode ? 'opacity-0 pointer-events-none scale-0' : 'opacity-100 scale-100'}`}>
             <button 
               onClick={() => { setIsAiMode(!isAiMode); if (isAiMode) setSearchQuery(''); }}
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl relative transition-all active:scale-90 ${isAiMode ? 'bg-[#520d52]' : 'bg-zepto-purple'}`}
+              className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl relative transition-all active:scale-90 bg-zepto-purple"
               title="Zepto AI Assistant"
             >
-              {isAiMode ? (
-                  <div className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center">
-                    <i className="fa-solid fa-xmark text-white text-lg"></i>
-                  </div>
-              ) : (
                 <div className="relative flex items-center justify-center">
                     <i className="fa-solid fa-headset text-2xl text-white"></i>
                     <span className="absolute inset-0 rounded-2xl bg-white/20 animate-pulse"></span>
                 </div>
-              )}
             </button>
           </div>
         )}
 
         {isAiMode && (
           <div className="absolute inset-0 z-[100] flex flex-col justify-end bg-zepto-purple/60 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="absolute inset-0" onClick={() => setIsAiMode(false)}></div>
+            <div className="absolute inset-0" onClick={() => { setIsAiMode(false); setIsAiInputFocused(false); }}></div>
             <div className="relative z-[110] animate-in slide-in-from-bottom-full duration-500 w-full h-full pt-16">
                <AIChatAssistant 
                   onAddProducts={handleAIAdd} 
                   initialQuery={searchQuery}
                   activeProduct={view === AppView.PDP ? selectedProduct || undefined : undefined}
-                  onClose={() => { setIsAiMode(false); setSearchQuery(''); }}
+                  onClose={() => { setIsAiMode(false); setSearchQuery(''); setIsAiInputFocused(false); }}
+                  onInputFocusChange={setIsAiInputFocused}
+                  hasCartItems={totalQuantity > 0}
                />
             </div>
           </div>
