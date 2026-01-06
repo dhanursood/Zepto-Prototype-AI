@@ -10,8 +10,11 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '1kg',
     category: 'Vegetables',
     imageUrl: 'https://images.unsplash.com/photo-1508747703725-719777637510?w=400&h=400&fit=crop',
-    description: 'Fresh red onions, essential for every Indian kitchen.',
-    isVeg: true
+    description: 'Fresh red onions, essential for every Indian kitchen. Known for their sharp aroma and sweet finish when cooked.',
+    isVeg: true,
+    highlights: ['Rich in antioxidants', 'Essential for Indian curries', 'Farm fresh quality'],
+    shelfLife: '10-14 Days',
+    storageInfo: 'Store in a cool, dry place away from direct sunlight.'
   },
   {
     id: 'p4',
@@ -20,53 +23,12 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '500g',
     category: 'Vegetables',
     imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&h=400&fit=crop',
-    description: 'Fresh hybrid tomatoes, firm and juicy.',
-    isVeg: true
+    description: 'Fresh hybrid tomatoes, firm and juicy. Perfect for salads, gravies, and soups.',
+    isVeg: true,
+    highlights: ['High in Lycopene', 'Firm and juicy texture', 'Direct from farms'],
+    shelfLife: '5-7 Days',
+    storageInfo: 'Keep at room temperature until ripe, then refrigerate.'
   },
-  {
-    id: 'p10',
-    name: 'Potato / Aloo',
-    price: 30,
-    unit: '1kg',
-    category: 'Vegetables',
-    imageUrl: 'https://images.unsplash.com/photo-1518977676601-b53f02ac6d31?w=400&h=400&fit=crop',
-    description: 'Versatile fresh potatoes.',
-    isVeg: true
-  },
-  {
-    id: 'p9',
-    name: 'Coriander / Dhania',
-    price: 15,
-    unit: '100g',
-    category: 'Vegetables',
-    imageUrl: 'https://images.unsplash.com/photo-1588877381448-5883a79f5493?w=400&h=400&fit=crop',
-    description: 'Fresh aromatic coriander leaves.',
-    isVeg: true
-  },
-
-  // Fruits
-  {
-    id: 'p11',
-    name: 'Banana - Robusta',
-    price: 48,
-    unit: '6 pcs',
-    category: 'Fruits',
-    imageUrl: 'https://images.unsplash.com/photo-1571771894821-ad99026?w=400&h=400&fit=crop',
-    description: 'Perfectly ripe Robusta bananas.',
-    isVeg: true
-  },
-  {
-    id: 'p26',
-    name: 'Apple - Royal Gala',
-    price: 180,
-    unit: '4 pcs',
-    category: 'Fruits',
-    imageUrl: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6bcd6?w=400&h=400&fit=crop',
-    description: 'Crunchy and sweet Royal Gala apples.',
-    isVeg: true
-  },
-
-  // Dairy
   {
     id: 'p1',
     name: 'Malai Paneer',
@@ -75,21 +37,12 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '200g',
     category: 'Dairy',
     imageUrl: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400&h=400&fit=crop',
-    description: 'Fresh and soft malai paneer, perfect for curry.',
-    isVeg: true
+    description: 'Fresh and soft malai paneer, perfect for curry. Made from 100% pure cow milk for the ultimate creamy texture.',
+    isVeg: true,
+    highlights: ['Pure milk product', 'No preservatives added', 'Extremely soft & creamy'],
+    shelfLife: '15 Days',
+    storageInfo: 'Store under refrigeration at 4°C or below.'
   },
-  {
-    id: 'p12',
-    name: 'Fresh Milk - Full Cream',
-    price: 33,
-    unit: '500ml',
-    category: 'Dairy',
-    imageUrl: 'https://images.unsplash.com/photo-1550583724-1255818c0533?w=400&h=400&fit=crop',
-    description: 'Farm fresh full cream milk.',
-    isVeg: true
-  },
-
-  // Beverages
   {
     id: 'p13',
     name: 'Coca-Cola Zero Sugar',
@@ -97,64 +50,11 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '300ml Can',
     category: 'Beverages',
     imageUrl: 'https://images.unsplash.com/photo-1622708782596-13d9e6055a86?w=400&h=400&fit=crop',
-    description: 'The classic taste of Coca-Cola with zero sugar.',
-    isVeg: true
-  },
-  {
-    id: 'p14',
-    name: 'Red Bull Energy Drink',
-    price: 125,
-    unit: '250ml',
-    category: 'Beverages',
-    imageUrl: 'https://images.unsplash.com/photo-1622543925917-763c34d1538c?w=400&h=400&fit=crop',
-    description: 'Vitalizes body and mind.',
-    isVeg: true
-  },
-
-  // Instant Food
-  {
-    id: 'p16',
-    name: 'Maggi 2-Minute Noodles',
-    price: 140,
-    unit: '560g Pack',
-    category: 'Instant Food',
-    imageUrl: 'https://images.unsplash.com/photo-1612927621481-d8ebb21c9400?w=400&h=400&fit=crop',
-    description: 'Indias favorite instant noodles.',
-    isVeg: true
-  },
-  {
-    id: 'p30',
-    name: 'Pringles Potato Chips',
-    price: 110,
-    unit: '107g',
-    category: 'Instant Food',
-    imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400&h=400&fit=crop',
-    description: 'Sour cream and onion chips.',
-    isVeg: true
-  },
-
-  // Personal Care & Beauty
-  {
-    id: 'p27b',
-    name: 'Dove Intense Repair Shampoo',
-    price: 450,
-    unit: '340ml',
-    category: 'Personal Care',
-    imageUrl: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=400&h=400&fit=crop',
-    description: 'Best for dry and damaged hair. Provides deep nourishment to the scalp.',
-    ingredients: ['Fiber Actives', 'Micro Moisture Serum', 'Glycerin'],
-    specs: { 'Hair Type': 'Dry, Damaged', 'Benefit': 'Strength & Shine' }
-  },
-  {
-    id: 'p28b',
-    name: 'Ketoconazole Anti-Dandruff Shampoo',
-    price: 320,
-    unit: '100ml',
-    category: 'Personal Care',
-    imageUrl: 'https://images.unsplash.com/photo-1551443878-4f519750ef91?w=400&h=400&fit=crop',
-    description: 'Medicated formula to treat fungal dandruff and itchy scalp.',
-    ingredients: ['Ketoconazole 2%', 'Purified Water'],
-    specs: { 'Ailment': 'Dandruff, Seborrheic Dermatitis', 'Scalp Type': 'Itchy, Flaky' }
+    description: 'The classic taste of Coca-Cola with zero sugar. Great for those who want to enjoy the fizz without the calories.',
+    isVeg: true,
+    highlights: ['Zero Calories', 'Zero Sugar', 'Authentic Taste'],
+    shelfLife: '6 Months',
+    storageInfo: 'Best enjoyed chilled. Store in a cool, dry place.'
   },
   {
     id: 'p6',
@@ -163,9 +63,138 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '175ml',
     category: 'Beauty',
     imageUrl: 'https://images.unsplash.com/photo-1556228578-8c7c0f44bb0b?w=400&h=400&fit=crop',
-    description: 'Oil-free acne wash. Contains salicylic acid to clear breakouts and prevent new ones.',
+    description: 'Oil-free acne wash. Contains salicylic acid to clear breakouts and prevent new ones. Micro-clear technology helps clear oil instantly.',
     ingredients: ['2% Salicylic Acid', 'Water', 'Glycerin'],
-    specs: { 'Skin Type': 'Oily, Acne-Prone', 'Ailment': 'Acne, Blackheads' }
+    specs: { 'Skin Type': 'Oily, Acne-Prone', 'Ailment': 'Acne, Blackheads' },
+    highlights: ['Dermatologist Recommended', 'Non-comedogenic', 'Oil-free Formula'],
+    shelfLife: '36 Months',
+    storageInfo: 'Keep in a cool dry place. For external use only.'
+  },
+  {
+    id: 'p10',
+    name: 'Potato / Aloo',
+    price: 30,
+    unit: '1kg',
+    category: 'Vegetables',
+    imageUrl: 'https://images.unsplash.com/photo-1518977676601-b53f02ac6d31?w=400&h=400&fit=crop',
+    description: 'Versatile fresh potatoes, sourced from the best growing regions.',
+    isVeg: true,
+    highlights: ['Rich in Carbohydrates', 'Uniform Size', 'Great for frying/boiling'],
+    shelfLife: '15-20 Days',
+    storageInfo: 'Store in a dark, cool, and well-ventilated place.'
+  },
+  {
+    id: 'p9',
+    name: 'Coriander / Dhania',
+    price: 15,
+    unit: '100g',
+    category: 'Vegetables',
+    imageUrl: 'https://images.unsplash.com/photo-1588877381448-5883a79f5493?w=400&h=400&fit=crop',
+    description: 'Fresh aromatic coriander leaves. Adds a burst of freshness to every dish.',
+    isVeg: true,
+    shelfLife: '2-3 Days',
+    storageInfo: 'Wrap in paper towels and refrigerate in a plastic bag.'
+  },
+  {
+    id: 'p11',
+    name: 'Banana - Robusta',
+    price: 48,
+    unit: '6 pcs',
+    category: 'Fruits',
+    imageUrl: 'https://images.unsplash.com/photo-1571771894821-ad99026?w=400&h=400&fit=crop',
+    description: 'Perfectly ripe Robusta bananas, high in energy and potassium.',
+    isVeg: true,
+    shelfLife: '3-4 Days',
+    storageInfo: 'Store at room temperature. Keep away from direct sunlight.'
+  },
+  {
+    id: 'p26',
+    name: 'Apple - Royal Gala',
+    price: 180,
+    unit: '4 pcs',
+    category: 'Fruits',
+    imageUrl: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6bcd6?w=400&h=400&fit=crop',
+    description: 'Crunchy and sweet Royal Gala apples, imported from New Zealand.',
+    isVeg: true,
+    highlights: ['Crisp & Sweet', 'Fresh Arrival', 'High Fiber'],
+    shelfLife: '7-10 Days',
+    storageInfo: 'Store in the refrigerator for maximum crispness.'
+  },
+  {
+    id: 'p12',
+    name: 'Fresh Milk - Full Cream',
+    price: 33,
+    unit: '500ml',
+    category: 'Dairy',
+    imageUrl: 'https://images.unsplash.com/photo-1550583724-1255818c0533?w=400&h=400&fit=crop',
+    description: 'Farm fresh full cream milk, homogenized and pasteurized for safety.',
+    isVeg: true,
+    shelfLife: '2 Days',
+    storageInfo: 'Refrigerate immediately after purchase.'
+  },
+  {
+    id: 'p14',
+    name: 'Red Bull Energy Drink',
+    price: 125,
+    unit: '250ml',
+    category: 'Beverages',
+    imageUrl: 'https://images.unsplash.com/photo-1622543925917-763c34d1538c?w=400&h=400&fit=crop',
+    description: 'Vitalizes body and mind. Red Bull Energy Drink is a functional beverage providing wings whenever you need them.',
+    isVeg: true,
+    highlights: ['Contains Caffeine', 'High B-Vitamins', 'Real Alpine Water'],
+    shelfLife: '12 Months',
+    storageInfo: 'Store in a cool dry place.'
+  },
+  {
+    id: 'p16',
+    name: 'Maggi 2-Minute Noodles',
+    price: 140,
+    unit: '560g Pack',
+    category: 'Instant Food',
+    imageUrl: 'https://images.unsplash.com/photo-1612927621481-d8ebb21c9400?w=400&h=400&fit=crop',
+    description: 'Indias favorite instant noodles. Made with the finest quality spices and ingredients.',
+    isVeg: true,
+    highlights: ['Quick & Easy', 'Iconic Masala Taste', 'Iron Fortified'],
+    shelfLife: '9 Months',
+    storageInfo: 'Store in a cool, dry and hygienic place.'
+  },
+  {
+    id: 'p30',
+    name: 'Pringles Potato Chips',
+    price: 110,
+    unit: '107g',
+    category: 'Instant Food',
+    imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400&h=400&fit=crop',
+    description: 'Sour cream and onion chips. Once you pop, the fun dont stop!',
+    isVeg: true,
+    shelfLife: '12 Months',
+    storageInfo: 'Store in a cool, dry place away from heat.'
+  },
+  {
+    id: 'p27b',
+    name: 'Dove Intense Repair Shampoo',
+    price: 450,
+    unit: '340ml',
+    category: 'Personal Care',
+    imageUrl: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=400&h=400&fit=crop',
+    description: 'Best for dry and damaged hair. Provides deep nourishment to the scalp and strengthens hair from within.',
+    ingredients: ['Fiber Actives', 'Micro Moisture Serum', 'Glycerin'],
+    specs: { 'Hair Type': 'Dry, Damaged', 'Benefit': 'Strength & Shine' },
+    highlights: ['Nourishing Formula', 'Smooth & Shiny Hair', 'Gentle Cleansing'],
+    shelfLife: '24 Months',
+    storageInfo: 'Avoid contact with eyes. Store in a cool place.'
+  },
+  {
+    id: 'p28b',
+    name: 'Ketoconazole Anti-Dandruff Shampoo',
+    price: 320,
+    unit: '100ml',
+    category: 'Personal Care',
+    imageUrl: 'https://images.unsplash.com/photo-1551443878-4f519750ef91?w=400&h=400&fit=crop',
+    description: 'Medicated formula to treat fungal dandruff and itchy scalp. Results visible from the first wash.',
+    ingredients: ['Ketoconazole 2%', 'Purified Water'],
+    specs: { 'Ailment': 'Dandruff, Seborrheic Dermatitis', 'Scalp Type': 'Itchy, Flaky' },
+    shelfLife: '24 Months'
   },
   {
     id: 'p33c',
@@ -174,12 +203,11 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '120ml',
     category: 'Beauty',
     imageUrl: 'https://images.unsplash.com/photo-1556228852-6d35a585d566?w=400&h=400&fit=crop',
-    description: 'Soothing lotion for skin irritation, prickly heat, and insect bites.',
+    description: 'Soothing lotion for skin irritation, prickly heat, and insect bites. Provides immediate cooling effect.',
     ingredients: ['Calamine', 'Zinc Oxide', 'Glycerin'],
-    specs: { 'Ailment': 'Skin Irritation, Prickly Heat, Rash', 'Skin Type': 'Sensitive' }
+    specs: { 'Ailment': 'Skin Irritation, Prickly Heat, Rash', 'Skin Type': 'Sensitive' },
+    shelfLife: '36 Months'
   },
-
-  // Supplements (p46-p48 + NEW)
   {
     id: 'p20',
     name: 'Vitamin C Effervescent',
@@ -187,8 +215,10 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '20 Tablets',
     category: 'Supplements',
     imageUrl: 'https://images.unsplash.com/photo-1616671285454-e9ca7a980766?w=400&h=400&fit=crop',
-    description: 'Immunity booster orange flavor tablets.',
-    isVeg: true
+    description: 'Immunity booster orange flavor tablets. Just drop in water and enjoy a refreshing health drink.',
+    isVeg: true,
+    highlights: ['Natural Vitamin C', 'Sugar-Free', 'High Absorption'],
+    shelfLife: '18 Months'
   },
   {
     id: 'p57',
@@ -197,8 +227,9 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '60 Capsules',
     category: 'Supplements',
     imageUrl: 'https://images.unsplash.com/photo-1547489432-cf93fa6c71ee?w=400&h=400&fit=crop',
-    description: 'Essential minerals and vitamins for energy and stamina.',
-    isVeg: true
+    description: 'Essential minerals and vitamins for energy and stamina. Tailored for the modern lifestyle.',
+    isVeg: true,
+    shelfLife: '24 Months'
   },
   {
     id: 'p58',
@@ -207,8 +238,9 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '60 Tablets',
     category: 'Supplements',
     imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&h=400&fit=crop',
-    description: 'High potency Biotin for hair growth and glowing skin.',
-    isVeg: true
+    description: 'High potency Biotin for hair growth and glowing skin. Supports nail strength too.',
+    isVeg: true,
+    shelfLife: '24 Months'
   },
   {
     id: 'p59s',
@@ -217,7 +249,8 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '60 Softgels',
     category: 'Supplements',
     imageUrl: 'https://images.unsplash.com/photo-1547489432-cf93fa6c71ee?w=400&h=400&fit=crop',
-    description: 'Supports heart health, brain function, and joint mobility.'
+    description: 'Supports heart health, brain function, and joint mobility. High-quality marine source.',
+    shelfLife: '24 Months'
   },
   {
     id: 'p60s',
@@ -226,11 +259,10 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '4 Capsules',
     category: 'Supplements',
     imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&h=400&fit=crop',
-    description: 'Supports bone health and calcium absorption. Weekly dose.',
-    isVeg: true
+    description: 'Supports bone health and calcium absorption. Weekly dose for vitamin D deficiency.',
+    isVeg: true,
+    shelfLife: '18 Months'
   },
-
-  // Wellness (NEW)
   {
     id: 'p61w',
     name: 'Vaporizing Colds Rub',
@@ -238,9 +270,10 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '50g Jar',
     category: 'Wellness',
     imageUrl: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=400&h=400&fit=crop',
-    description: 'Fast relief from cough, cold symptoms, and body aches.',
+    description: 'Fast relief from cough, cold symptoms, and body aches. Safe for adults and children over 2 years.',
     ingredients: ['Menthol', 'Camphor', 'Eucalyptus Oil'],
-    specs: { 'Ailment': 'Cough, Cold, Blocked Nose' }
+    specs: { 'Ailment': 'Cough, Cold, Blocked Nose' },
+    shelfLife: '36 Months'
   },
   {
     id: 'p62w',
@@ -249,8 +282,9 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '55g',
     category: 'Wellness',
     imageUrl: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=400&h=400&fit=crop',
-    description: 'Rapid relief from back pain, joint pain, and muscle strains.',
-    specs: { 'Ailment': 'Muscle Pain, Joint Pain, Sprain' }
+    description: 'Rapid relief from back pain, joint pain, and muscle strains. Penetrates deep for faster recovery.',
+    specs: { 'Ailment': 'Muscle Pain, Joint Pain, Sprain' },
+    shelfLife: '36 Months'
   },
   {
     id: 'p63w',
@@ -259,9 +293,10 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '200ml',
     category: 'Wellness',
     imageUrl: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=400&h=400&fit=crop',
-    description: 'Neutralizes acidity and provides quick relief from gas and bloating.',
+    description: 'Neutralizes acidity and provides quick relief from gas and bloating. Pleasant mint flavor.',
     isVeg: true,
-    specs: { 'Ailment': 'Acidity, Gas, Heartburn' }
+    specs: { 'Ailment': 'Acidity, Gas, Heartburn' },
+    shelfLife: '24 Months'
   },
   {
     id: 'p64w',
@@ -270,8 +305,9 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '1 unit',
     category: 'Wellness',
     imageUrl: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=400&h=400&fit=crop',
-    description: 'Accurate and fast reading digital thermometer with flexible tip.',
-    specs: { 'Type': 'Medical Device' }
+    description: 'Accurate and fast reading digital thermometer with flexible tip. Water-resistant and easy to clean.',
+    specs: { 'Type': 'Medical Device' },
+    shelfLife: '5 Years Battery'
   },
   {
     id: 'p65w',
@@ -280,11 +316,10 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '1 unit',
     category: 'Wellness',
     imageUrl: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=400&h=400&fit=crop',
-    description: 'Therapeutic heat for back and neck pain relief.',
-    specs: { 'Ailment': 'Back Pain, Chronic Pain' }
+    description: 'Therapeutic heat for back and neck pain relief. Three heat levels for personalized comfort.',
+    specs: { 'Ailment': 'Back Pain, Chronic Pain' },
+    shelfLife: 'N/A'
   },
-
-  // Electronics & Accessories
   {
     id: 'p7',
     name: 'iPhone 15 Case - Clear',
@@ -292,8 +327,10 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '1 pc',
     category: 'Electronics',
     imageUrl: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400&h=400&fit=crop',
-    description: 'Crystal clear magsafe compatible case.',
-    specs: { 'Compatibility': 'iPhone 15', 'Port Type': 'USB-C' }
+    description: 'Crystal clear magsafe compatible case. Show off your iPhone design while keeping it protected.',
+    specs: { 'Compatibility': 'iPhone 15', 'Port Type': 'USB-C' },
+    highlights: ['MagSafe Compatible', 'Drop Protection', 'Scratch Resistant'],
+    shelfLife: 'N/A'
   },
   {
     id: 'p7b',
@@ -302,8 +339,10 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '1 pc',
     category: 'Electronics',
     imageUrl: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400&h=400&fit=crop',
-    description: 'Soft-touch silicone case with microfiber lining.',
-    specs: { 'Compatibility': 'iPhone 14, iPhone 13', 'Port Type': 'Lightning' }
+    description: 'Soft-touch silicone case with microfiber lining. Provides a great grip and premium feel.',
+    specs: { 'Compatibility': 'iPhone 14, iPhone 13', 'Port Type': 'Lightning' },
+    highlights: ['Soft Touch', 'Microfiber Lining', 'Vibrant Colors'],
+    shelfLife: 'N/A'
   },
   {
     id: 'p22',
@@ -312,8 +351,10 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '1m',
     category: 'Electronics',
     imageUrl: 'https://images.unsplash.com/photo-1589492477829-5e65395b66cc?w=400&h=400&fit=crop',
-    description: 'Durable braided fast charging cable for modern devices.',
-    specs: { 'Port': 'USB-C', 'Compatibility': 'iPhone 15, iPad Pro, Android' }
+    description: 'Durable braided fast charging cable for modern devices. Supports up to 60W power delivery.',
+    specs: { 'Port': 'USB-C', 'Compatibility': 'iPhone 15, iPad Pro, Android' },
+    highlights: ['60W Power Delivery', 'Braided Cable', 'Tangle Free'],
+    shelfLife: 'N/A'
   },
   {
     id: 'p22b',
@@ -322,8 +363,9 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '1m',
     category: 'Electronics',
     imageUrl: 'https://images.unsplash.com/photo-1589492477829-5e65395b66cc?w=400&h=400&fit=crop',
-    description: 'Official spec charging and data sync cable for older iPhones.',
-    specs: { 'Port': 'Lightning', 'Compatibility': 'iPhone 14, 13, 12, 11, SE' }
+    description: 'Official spec charging and data sync cable for older iPhones. MFi certified.',
+    specs: { 'Port': 'Lightning', 'Compatibility': 'iPhone 14, 13, 12, 11, SE' },
+    shelfLife: 'N/A'
   },
   {
     id: 'p22c',
@@ -332,11 +374,10 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '2m',
     category: 'Electronics',
     imageUrl: 'https://images.unsplash.com/photo-1589492477829-5e65395b66cc?w=400&h=400&fit=crop',
-    description: 'Longer cable for convenience, fully certified by Apple.',
-    specs: { 'Port': 'Lightning', 'Compatibility': 'All Lightning iPhones' }
+    description: 'Longer cable for convenience, fully certified by Apple for all Lightning devices.',
+    specs: { 'Port': 'Lightning', 'Compatibility': 'All Lightning iPhones' },
+    shelfLife: 'N/A'
   },
-
-  // Self Care
   {
     id: 'p36b',
     name: 'Silk Sleep Eye Mask',
@@ -344,7 +385,8 @@ export const MOCK_PRODUCTS: Product[] = [
     unit: '1 unit',
     category: 'Self Care',
     imageUrl: 'https://images.unsplash.com/photo-1614232230302-3f1ec2a7f9b0?w=400&h=400&fit=crop',
-    description: 'Padded mask for restful sleep.'
+    description: 'Padded mask for restful sleep. Made from premium mulberry silk.',
+    shelfLife: 'N/A'
   }
 ];
 

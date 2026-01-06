@@ -11,6 +11,10 @@ export interface Product {
   ingredients?: string[];
   specs?: Record<string, string>;
   isVeg?: boolean;
+  highlights?: string[];
+  shelfLife?: string;
+  storageInfo?: string;
+  manufacturer?: string;
 }
 
 export interface CartItem extends Product {

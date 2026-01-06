@@ -120,7 +120,7 @@ const App: React.FC = () => {
     items.forEach(item => addToCart(item.product, item.quantity));
     setIsAiMode(false);
     setSearchQuery('');
-    setView(AppView.HOME);
+    // Optionally stay on PDP or go home
   };
 
   const reviewCart = async () => {
@@ -391,6 +391,7 @@ const App: React.FC = () => {
 
           {view === AppView.PDP && selectedProduct && (
             <div className="bg-white min-h-full animate-in fade-in duration-300">
+              {/* Product Header & Image */}
               <div className="relative h-72 flex items-center justify-center p-8 bg-gray-50 pt-12">
                 <button 
                   onClick={() => setView(AppView.HOME)} 
@@ -409,8 +410,15 @@ const App: React.FC = () => {
               <div className="p-6 bg-white rounded-t-3xl -mt-6 relative z-10 shadow-2xl shadow-gray-200">
                 <div className="flex justify-between items-start mb-6">
                   <div>
-                    <h1 className="text-xl font-black mb-1 text-gray-900">{selectedProduct.name}</h1>
-                    <p className="text-gray-400 font-bold text-sm">{selectedProduct.unit}</p>
+                    <h1 className="text-xl font-black mb-1 text-gray-900 leading-tight">{selectedProduct.name}</h1>
+                    <div className="flex items-center gap-2">
+                       <p className="text-gray-400 font-bold text-sm">{selectedProduct.unit}</p>
+                       {selectedProduct.isVeg && (
+                          <div className="border border-green-600 w-3 h-3 flex items-center justify-center rounded-[2px]">
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-600"></div>
+                          </div>
+                       )}
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="text-xl font-black text-zepto-purple">₹{selectedProduct.price}</p>
@@ -422,27 +430,76 @@ const App: React.FC = () => {
 
                 <div className="h-[1px] bg-gray-50 w-full mb-6"></div>
 
-                <div className="space-y-6">
-                  <div>
-                      <h3 className="font-black text-gray-900 mb-2 flex items-center gap-2 text-sm">
-                          <i className="fa-solid fa-circle-info text-zepto-purple/40"></i> Product Details
-                      </h3>
-                      <p className="text-gray-600 leading-relaxed text-sm font-medium">{selectedProduct.description}</p>
-                  </div>
-                  {selectedProduct.ingredients && (
-                      <div className="bg-zepto-purple-light p-4 rounded-2xl border border-zepto-purple/10">
-                          <p className="text-[10px] font-black text-zepto-purple uppercase mb-2 tracking-widest">Key Ingredients</p>
-                          <p className="text-xs text-zepto-purple font-semibold leading-relaxed">{selectedProduct.ingredients.join(' • ')}</p>
+                <div className="space-y-8">
+                  {/* Highlights section */}
+                  {selectedProduct.highlights && (
+                    <div>
+                      <h3 className="font-black text-gray-900 mb-4 text-sm uppercase tracking-wider">Product Highlights</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        {selectedProduct.highlights.map((h, i) => (
+                          <div key={i} className="flex items-center gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                            <i className="fa-solid fa-check-circle text-green-500 text-xs"></i>
+                            <span className="text-[11px] font-bold text-gray-700 leading-tight">{h}</span>
+                          </div>
+                        ))}
                       </div>
+                    </div>
                   )}
+
+                  {/* Main Description */}
+                  <div>
+                      <h3 className="font-black text-gray-900 mb-3 text-sm uppercase tracking-wider">Product Details</h3>
+                      <p className="text-gray-600 leading-relaxed text-[13px] font-medium">{selectedProduct.description}</p>
+                  </div>
+
+                  {/* Information Grid (Shelf Life, Storage, Ingredients) */}
+                  <div className="grid grid-cols-1 gap-6 bg-gray-50 p-5 rounded-2xl border border-gray-100">
+                    {selectedProduct.shelfLife && (
+                      <div className="flex items-start gap-4">
+                        <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-zepto-purple/40 shadow-sm border border-gray-50">
+                           <i className="fa-solid fa-hourglass-half text-sm"></i>
+                        </div>
+                        <div>
+                           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Shelf Life</p>
+                           <p className="text-[12px] font-bold text-gray-800">{selectedProduct.shelfLife}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {selectedProduct.storageInfo && (
+                      <div className="flex items-start gap-4">
+                        <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-zepto-purple/40 shadow-sm border border-gray-50">
+                           <i className="fa-solid fa-box-archive text-sm"></i>
+                        </div>
+                        <div>
+                           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Storage Info</p>
+                           <p className="text-[12px] font-bold text-gray-800 leading-snug">{selectedProduct.storageInfo}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedProduct.ingredients && (
+                      <div className="flex items-start gap-4">
+                        <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-zepto-purple/40 shadow-sm border border-gray-50">
+                           <i className="fa-solid fa-mortar-pestle text-sm"></i>
+                        </div>
+                        <div>
+                           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Key Ingredients</p>
+                           <p className="text-[11px] font-semibold text-zepto-purple leading-relaxed bg-zepto-purple-light px-2 py-0.5 rounded-md mt-1">{selectedProduct.ingredients.join(' • ')}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Technical Specifications */}
                   {selectedProduct.specs && (
                      <div>
-                        <h3 className="font-black text-gray-900 mb-3 text-sm">Specifications</h3>
+                        <h3 className="font-black text-gray-900 mb-4 text-sm uppercase tracking-wider">Specifications</h3>
                         <div className="grid grid-cols-2 gap-3">
                           {Object.entries(selectedProduct.specs).map(([key, val]) => (
-                            <div key={key} className="bg-gray-50 p-2.5 rounded-xl">
-                              <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-0.5">{key}</p>
-                              <p className="text-[11px] font-bold text-gray-700">{val}</p>
+                            <div key={key} className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                              <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mb-1">{key}</p>
+                              <p className="text-[11px] font-black text-gray-700">{val}</p>
                             </div>
                           ))}
                         </div>
@@ -450,14 +507,21 @@ const App: React.FC = () => {
                   )}
                 </div>
                 
-                <div className="h-40"></div>
-                <div className="absolute bottom-24 left-0 right-0 px-6 z-40 bg-white/80 backdrop-blur-md py-4 border-t border-gray-100">
-                  <button 
-                    onClick={() => addToCart(selectedProduct)}
-                    className="w-full bg-zepto-pink hover:bg-zepto-pink-dark text-white font-black py-5 rounded-2xl shadow-xl shadow-zepto-pink/20 uppercase tracking-widest active:scale-[0.98] transition-all"
-                  >
-                    Add to Cart
-                  </button>
+                <div className="h-44"></div>
+                {/* Floating Action Bar */}
+                <div className="absolute bottom-24 left-0 right-0 px-6 z-40 bg-white/90 backdrop-blur-md py-5 border-t border-gray-100 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)]">
+                  <div className="flex items-center gap-4">
+                    <div className="flex flex-col">
+                       <span className="text-[10px] font-black text-gray-400 uppercase">Unit Price</span>
+                       <span className="text-lg font-black text-gray-900">₹{selectedProduct.price}</span>
+                    </div>
+                    <button 
+                      onClick={() => addToCart(selectedProduct)}
+                      className="flex-1 bg-zepto-pink hover:bg-zepto-pink-dark text-white font-black py-4 rounded-2xl shadow-xl shadow-zepto-pink/20 uppercase tracking-widest active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    >
+                      Add To Cart <i className="fa-solid fa-cart-plus text-xs"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -649,6 +713,7 @@ const App: React.FC = () => {
                <AIChatAssistant 
                   onAddProducts={handleAIAdd} 
                   initialQuery={searchQuery}
+                  activeProduct={view === AppView.PDP ? selectedProduct || undefined : undefined}
                   onClose={() => { setIsAiMode(false); setSearchQuery(''); }}
                />
             </div>

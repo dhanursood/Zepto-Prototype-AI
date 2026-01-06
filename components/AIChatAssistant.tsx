@@ -1,165 +1,246 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { getAIRecommendations } from '../services/geminiService';
-import { Product, AIResponse } from '../types';
+import { getUnifiedAIResponse, UnifiedAIResponse } from '../services/geminiService';
+import { Product } from '../types';
 import { MOCK_PRODUCTS } from '../constants';
 
 interface AIChatAssistantProps {
   onAddProducts: (products: { product: Product; quantity: number }[]) => void;
   initialQuery?: string;
+  activeProduct?: Product;
   onClose?: () => void;
 }
 
-const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initialQuery, onClose }) => {
+const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initialQuery, activeProduct: initialActiveProduct, onClose }) => {
   const [loading, setLoading] = useState(false);
-  const [response, setResponse] = useState<AIResponse | null>(null);
+  const [activeProduct, setActiveProduct] = useState<Product | undefined>(initialActiveProduct);
   const [error, setError] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState('');
+  const [chatHistory, setChatHistory] = useState<{ type: 'user' | 'ai'; text: string; data?: UnifiedAIResponse }[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [chatHistory, loading]);
 
   useEffect(() => {
     if (initialQuery) {
       setInputValue(initialQuery);
       handleSearch(initialQuery);
+    } else if (activeProduct) {
+      setChatHistory([{ 
+        type: 'ai', 
+        text: `Hi! I'm ready to help with **${activeProduct.name}** or anything else in the catalog. What's on your mind?` 
+      }]);
+    } else {
+      setChatHistory([{ 
+        type: 'ai', 
+        text: "Hi! I'm your Zepto Assistant. Ask me for recipes, product advice, or finding the best deals!" 
+      }]);
     }
-  }, [initialQuery]);
+  }, [initialQuery, activeProduct?.id]);
 
   const handleSearch = async (query: string) => {
     if (!query.trim() || loading) return;
+    const currentQuery = query.trim();
     setLoading(true);
     setError(null);
+    setChatHistory(prev => [...prev, { type: 'user', text: currentQuery }]);
+    setInputValue('');
+
     try {
-      const result = await getAIRecommendations(query);
-      if (result && (result.products.length > 0 || result.explanation)) {
-        setResponse(result);
+      const result = await getUnifiedAIResponse(currentQuery, activeProduct);
+      if (result) {
+        setChatHistory(prev => [...prev, { 
+          type: 'ai', 
+          text: result.answer,
+          data: result 
+        }]);
       } else {
-        setResponse(null);
-        setError("I couldn't find exact matches for your request in our current catalog. Try asking about iPhone cables, paneer recipes, or skin care.");
+        setError("I'm having trouble connecting right now. Please try again.");
       }
     } catch (err) {
-      setError("AI is currently unavailable. Please try again later.");
+      setError("AI service encountered an error.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddAll = () => {
-    if (!response || response.products.length === 0) return;
-    const itemsToAdd = response.products
-      .map(item => {
-        const product = MOCK_PRODUCTS.find(p => p.id === item.id);
-        return product ? { product, quantity: item.quantity } : null;
-      })
-      .filter((item): item is { product: Product; quantity: number } => item !== null);
-    
+  const handleAction = (action: { label: string; quantity: number; productId?: string } | undefined, products?: { id: string; quantity: number }[]) => {
+    const itemsToAdd: { product: Product; quantity: number }[] = [];
+
+    // 1. Handle explicit single action
+    if (action) {
+      const targetId = action.productId || activeProduct?.id;
+      if (targetId) {
+        const p = MOCK_PRODUCTS.find(prod => prod.id === targetId);
+        if (p) itemsToAdd.push({ product: p, quantity: action.quantity });
+      }
+    }
+
+    // 2. Handle suggested product list (common for recipes or search)
+    if (products && products.length > 0) {
+      products.forEach(item => {
+        const p = MOCK_PRODUCTS.find(prod => prod.id === item.id);
+        if (p) itemsToAdd.push({ product: p, quantity: item.quantity });
+      });
+    }
+
     if (itemsToAdd.length > 0) {
       onAddProducts(itemsToAdd);
     }
   };
 
+  const suggestions = activeProduct 
+    ? ['Is it fresh?', 'Servings for 4?', 'Storage tips?', 'Show me milk']
+    : ['Healthy snacks', 'iPhone 15 cable', 'Dinner recipe', 'Beauty deals'];
+
+  const lastAiMessage = [...chatHistory].reverse().find(m => m.type === 'ai');
+  const followUps = lastAiMessage?.data?.followUps || suggestions;
+
   return (
-    <div className="bg-white rounded-t-[2.5rem] zepto-shadow flex flex-col h-full overflow-hidden border-t border-gray-100">
+    <div className="bg-white rounded-t-[2.5rem] zepto-shadow flex flex-col h-full overflow-hidden border-t border-gray-100 relative">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 pb-4 border-b border-gray-50 bg-white sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-zepto-purple flex items-center justify-center shadow-lg shadow-zepto-purple/20">
-            <i className="fa-solid fa-sparkles text-white text-sm"></i>
-          </div>
-          <div>
-            <h2 className="text-xl font-black text-zepto-purple tracking-tight leading-none mb-1">Zepto AI</h2>
-            <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Expert Active</span>
+      <div className="flex flex-col p-6 pb-4 border-b border-gray-50 bg-white sticky top-0 z-10">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-zepto-purple flex items-center justify-center shadow-lg shadow-zepto-purple/20">
+              <i className="fa-solid fa-sparkles text-white text-sm"></i>
+            </div>
+            <div>
+              <h2 className="text-xl font-black text-zepto-purple tracking-tight leading-none mb-1">Zepto Assistant</h2>
+              <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Always Learning</span>
+              </div>
             </div>
           </div>
+          <button onClick={onClose} className="text-gray-300 hover:text-gray-500 transition-colors p-2">
+            <i className="fa-solid fa-xmark text-lg"></i>
+          </button>
         </div>
-        {/* Secondary close button removed as the floating toggle handles this */}
+
+        {activeProduct && (
+          <div className="flex items-center gap-2 animate-in slide-in-from-top-2">
+            <div className="flex-1 flex items-center gap-3 bg-zepto-purple-light p-2 rounded-2xl border border-zepto-purple/10">
+              <div className="w-8 h-8 bg-white rounded-lg p-1 shadow-sm">
+                <img src={activeProduct.imageUrl} className="w-full h-full object-contain mix-blend-multiply" />
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <p className="text-[10px] font-bold text-zepto-purple truncate">Context: {activeProduct.name}</p>
+              </div>
+              <button 
+                onClick={() => setActiveProduct(undefined)}
+                className="w-6 h-6 flex items-center justify-center text-zepto-purple/40 hover:text-zepto-purple transition-colors"
+                title="Clear product context"
+              >
+                <i className="fa-solid fa-circle-xmark text-xs"></i>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Content Area */}
-      <div className="flex-1 overflow-y-auto p-6 scrollbar-hide space-y-8 bg-gray-50/30 pb-48">
-        {loading ? (
-          <div className="py-20 flex flex-col items-center justify-center text-center">
-            <div className="relative">
-                <div className="w-16 h-16 border-4 border-zepto-purple/10 rounded-full"></div>
-                <div className="absolute inset-0 w-16 h-16 border-4 border-zepto-purple border-t-transparent rounded-full animate-spin"></div>
-            </div>
-            <p className="text-zepto-purple font-black mt-6 tracking-tight">Thinking like an expert...</p>
-            <p className="text-gray-400 text-xs mt-2 font-medium">Analyzing catalog for "{inputValue}"</p>
-          </div>
-        ) : error ? (
-          <div className="bg-red-50 text-red-600 p-5 rounded-2xl text-sm font-bold border border-red-100 flex flex-col gap-2">
-            <div className="flex items-center gap-3">
-              <i className="fa-solid fa-circle-exclamation text-lg"></i>
-              <span>No direct match found</span>
-            </div>
-            <p className="text-xs font-medium opacity-80">{error}</p>
-          </div>
-        ) : response ? (
-          <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-            <div className="bg-gradient-to-br from-zepto-purple to-zepto-purple-dark p-6 rounded-3xl mb-8 shadow-xl shadow-zepto-purple/20 relative overflow-hidden">
-              <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
-              <h3 className="font-black text-white mb-3 text-lg leading-tight flex items-center gap-2">
-                ✨ {response.summary}
-              </h3>
-              <p className="text-sm text-white/90 font-medium leading-relaxed whitespace-pre-wrap">{response.explanation}</p>
+      {/* Chat Messages */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 scrollbar-hide space-y-6 bg-gray-50/40 pb-40">
+        {chatHistory.map((chat, idx) => (
+          <div key={idx} className={`flex flex-col ${chat.type === 'user' ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-2`}>
+            <div className={`px-4 py-3 rounded-2xl text-[13px] font-semibold max-w-[85%] ${
+              chat.type === 'user' 
+                ? 'bg-zepto-purple text-white rounded-tr-none shadow-md' 
+                : 'bg-white text-gray-800 rounded-tl-none border border-gray-100 shadow-sm'
+            }`}>
+              {chat.text}
             </div>
 
-            {response.products.length > 0 && (
-              <div className="mb-8">
-                <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 mb-5 flex items-center gap-2">
-                  <i className="fa-solid fa-shopping-bag text-zepto-purple/40"></i> Recommended Essentials
-                </h4>
-                <div className="space-y-3">
-                  {response.products.map((item) => {
-                    const p = MOCK_PRODUCTS.find(prod => prod.id === item.id);
-                    if (!p) return null;
-                    return (
-                      <div key={p.id} className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-gray-100 zepto-card-shadow group hover:border-zepto-purple transition-all">
-                        <div className="w-16 h-16 bg-gray-50 rounded-xl p-2 flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <img src={p.imageUrl} alt={p.name} className="w-full h-full object-contain mix-blend-multiply" />
+            {/* AI Data Rich Response */}
+            {chat.type === 'ai' && chat.data && (
+              <div className="mt-3 w-full max-w-[90%] space-y-3">
+                {/* Product List from AI */}
+                {chat.data.products && chat.data.products.length > 0 && (
+                  <div className="bg-white rounded-2xl border border-gray-100 p-3 shadow-sm space-y-2">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Suggested Items</p>
+                    {chat.data.products.map(item => {
+                      const p = MOCK_PRODUCTS.find(prod => prod.id === item.id);
+                      if (!p) return null;
+                      return (
+                        <div key={p.id} className="flex items-center gap-3 bg-gray-50 p-2 rounded-xl">
+                          <img src={p.imageUrl} className="w-8 h-8 object-contain mix-blend-multiply" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[11px] font-bold truncate">{p.name}</p>
+                            <p className="text-[10px] font-black text-zepto-purple">₹{p.price}</p>
+                          </div>
+                          <span className="text-[10px] font-black bg-white px-2 py-1 rounded-lg border border-gray-100">x{item.quantity}</span>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-black text-gray-900 leading-tight mb-1">{p.name}</p>
-                          <p className="text-[11px] text-gray-400 font-bold">{p.unit} • <span className="text-zepto-purple">₹{p.price}</span></p>
-                        </div>
-                        <div className="text-zepto-pink font-black text-sm bg-zepto-pink-light w-10 h-10 rounded-xl flex items-center justify-center border border-zepto-pink/10 shadow-sm">
-                          x{item.quantity}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
 
-                <button
-                  onClick={handleAddAll}
-                  className="w-full bg-zepto-pink hover:bg-zepto-pink-dark text-white font-black py-5 rounded-2xl shadow-xl shadow-zepto-pink/20 active:scale-95 transition-all mt-6 flex items-center justify-center gap-3 uppercase tracking-widest text-sm"
-                >
-                  Add Selection To Cart <i className="fa-solid fa-cart-plus ml-2"></i>
-                </button>
+                {/* Primary CTA */}
+                {chat.data.action && (
+                  <button 
+                    onClick={() => handleAction(chat.data?.action, chat.data?.products)}
+                    className="w-full bg-zepto-pink hover:bg-zepto-pink-dark text-white text-[11px] font-black py-3 rounded-xl shadow-lg shadow-zepto-pink/20 uppercase tracking-widest active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                  >
+                    <i className="fa-solid fa-cart-plus"></i> {chat.data.action.label}
+                  </button>
+                )}
+                
+                {/* Secondary Button if products exist but no action */}
+                {!chat.data.action && chat.data.products && chat.data.products.length > 0 && (
+                  <button 
+                    onClick={() => handleAction(undefined, chat.data?.products)}
+                    className="w-full bg-zepto-purple text-white text-[11px] font-black py-3 rounded-xl uppercase tracking-widest active:scale-[0.98] transition-all"
+                  >
+                    Add All To Cart
+                  </button>
+                )}
               </div>
             )}
           </div>
-        ) : (
-          <div className="py-16 text-center text-gray-400 flex flex-col items-center">
-              <div className="w-20 h-20 bg-zepto-purple-light rounded-3xl flex items-center justify-center mb-6 shadow-inner">
-                <i className="fa-solid fa-magic-wand-sparkles text-3xl text-zepto-purple opacity-40"></i>
-              </div>
-              <h3 className="text-gray-900 font-black text-lg mb-2">How can I help you?</h3>
-              <p className="text-sm font-medium text-gray-400 max-w-[240px]">Ask for technical compatibility, recipes, or personal care advice.</p>
+        ))}
+
+        {loading && (
+          <div className="flex items-center gap-2 py-2">
+             <div className="w-1.5 h-1.5 bg-zepto-purple rounded-full animate-bounce"></div>
+             <div className="w-1.5 h-1.5 bg-zepto-purple rounded-full animate-bounce delay-100"></div>
+             <div className="w-1.5 h-1.5 bg-zepto-purple rounded-full animate-bounce delay-200"></div>
+             <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest ml-2">Thinking...</span>
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-[11px] font-bold border border-red-100 animate-shake">
+            <i className="fa-solid fa-circle-exclamation mr-2"></i> {error}
           </div>
         )}
       </div>
 
       {/* Input Section */}
-      <div className="p-6 pt-4 bg-white border-t border-gray-100 pb-16 absolute bottom-0 left-0 right-0 z-20">
+      <div className="p-6 pt-4 bg-white border-t border-gray-100 pb-12 absolute bottom-0 left-0 right-0 z-20 shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-4 -mx-1 px-1">
+            {followUps.map((tag, i) => (
+                <button 
+                    key={i}
+                    onClick={() => handleSearch(tag)}
+                    className="whitespace-nowrap bg-gray-50 border border-gray-100 px-4 py-2 rounded-full text-[10px] font-bold text-gray-500 hover:border-zepto-purple hover:text-zepto-purple hover:bg-white transition-all active:scale-95"
+                >
+                    {tag}
+                </button>
+            ))}
+        </div>
+
         <div className="relative">
-            <textarea
+            <input
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Message Zepto AI..."
-                className="w-full p-4 pr-14 rounded-[1.5rem] bg-gray-100 border-2 border-transparent outline-none focus:bg-white focus:border-zepto-purple transition-all resize-none h-20 text-sm font-semibold placeholder:text-gray-400"
+                placeholder={activeProduct ? `Ask about this ${activeProduct.category.toLowerCase()}...` : "Find recipes, products..."}
+                className="w-full py-4 pl-5 pr-14 rounded-2xl bg-gray-100 border-2 border-transparent outline-none focus:bg-white focus:border-zepto-purple transition-all text-sm font-semibold placeholder:text-gray-400"
                 onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
+                    if (e.key === 'Enter') {
                         e.preventDefault();
                         handleSearch(inputValue);
                     }
@@ -168,21 +249,10 @@ const AIChatAssistant: React.FC<AIChatAssistantProps> = ({ onAddProducts, initia
             <button 
                 onClick={() => handleSearch(inputValue)}
                 disabled={!inputValue.trim() || loading}
-                className="absolute right-3 bottom-3 w-10 h-10 bg-zepto-purple text-white rounded-2xl flex items-center justify-center disabled:opacity-30 active:scale-90 transition-all shadow-lg shadow-zepto-purple/30"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-zepto-purple text-white rounded-xl flex items-center justify-center disabled:opacity-30 active:scale-90 transition-all shadow-md shadow-zepto-purple/30"
             >
                 <i className="fa-solid fa-paper-plane text-xs"></i>
             </button>
-        </div>
-        <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-hide">
-            {['Cable for iPhone 15', 'Paneer recipe', 'Rash on skin'].map(tag => (
-                <button 
-                    key={tag}
-                    onClick={() => { setInputValue(tag); handleSearch(tag); }}
-                    className="whitespace-nowrap bg-white border border-gray-200 px-3 py-1.5 rounded-full text-[9px] font-black text-gray-500 uppercase tracking-widest hover:border-zepto-purple hover:text-zepto-purple transition-all"
-                >
-                    {tag}
-                </button>
-            ))}
         </div>
       </div>
     </div>
